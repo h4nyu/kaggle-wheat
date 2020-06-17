@@ -45,10 +45,13 @@ def test_toboxes() -> None:
 
 
 def test_focal_loss() -> None:
-    heatmaps = torch.tensor([[0.0, 0.5, 0.0], [0.5, 1, 0.5], [0, 0.5, 0],])
+    heatmaps = torch.tensor([[0.0, 0.5, 0.0], [0.5, 1, 0.5], [0, 0.5, 0],]).unsqueeze(0).unsqueeze(0)
+    size_maps = torch.zeros((1, 2, 3, 3))
+    print(size_maps.shape)
+    size_maps[0,:, 1, 1] = torch.tensor([0.1, 0.4])
     fn = FocalLoss()
-    preds = torch.tensor([[0.0001, 0.5, 0.0001], [0.5, 0.999, 0.5], [0.001, 0.5, 0.0001],])
-    res = fn(preds, heatmaps)
+    preds = torch.tensor([[0.0001, 0.5, 0.0001], [0.5, 0.999, 0.5], [0.001, 0.5, 0.0001],]).unsqueeze(0).unsqueeze(0)
+    res = fn(preds, heatmaps, size_maps)
     print(res)
     #
     #  preds = torch.tensor([[0.0, 0.0, 0.0], [0.0, 1, 0.0], [0.0, 0.0, 0.0],])

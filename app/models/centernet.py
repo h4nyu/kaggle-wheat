@@ -67,15 +67,16 @@ class FocalLoss(nn.Module):
         self.beta = beta
         self.eps = eps
 
-    def forward(self, pred: Tensor, gt: Tensor) -> Tensor:
+    def forward(self, pred: Tensor, kp_gt: Tensor, size_gt:Tensor) -> Tensor:
         alpha = self.alpha
         beta = self.beta
+        aspects = size_gt.max(dim=1)[0] / size_gt.min(dim=1)[0].clamp(1e-4)
         pred = torch.clamp(pred, min=self.eps, max=1 - self.eps)
-        pos_mask = gt.eq(1).float()
-        neg_mask = gt.lt(1).float()
-        pos_loss = -((1 - pred) ** alpha) * torch.log(pred) * pos_mask
+        pos_mask = kp_gt.eq(1).float()
+        neg_mask = kp_gt.lt(1).float()
+        pos_loss = -((1 - pred) ** alpha) * torch.log(pred) * pos_mask * aspects
         neg_loss = (
-            -((1 - gt) ** beta) * (pred ** alpha) * torch.log(1 - pred) * neg_mask
+            -((1 - kp_gt) ** beta) * (pred ** alpha) * torch.log(1 - pred) * neg_mask
         )
         loss = (pos_loss + neg_loss).sum()
         num_pos = pos_mask.sum().float()
@@ -208,7 +209,7 @@ class Criterion(nn.Module):
     def forward(self, src: NetOutputs, tgt: NetOutputs) -> Tensor:
         # TODO test code
         b, _, _, _ = src["heatmap"].shape
-        hm_loss = self.focal_loss(src["heatmap"], tgt["heatmap"]) / b
+        hm_loss = self.focal_loss(src["heatmap"], tgt["heatmap"], tgt["sizemap"]) / b
         size_loss = self.reg_loss(src['sizemap'], tgt['sizemap'])
         self.hm_meter.update(hm_loss.item())
         self.size_meter.update(size_loss.item())
