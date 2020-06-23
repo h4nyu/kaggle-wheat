@@ -2,9 +2,24 @@ import torch
 import typing as t
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import json
+import random
+import numpy as np
+from typing import Dict
+from torch import nn
 from pathlib import Path
-
 from torch import Tensor
+from logging import getLogger
+from app.entities.box import CoCoBoxes, YoloBoxes, yolo_to_coco
+
+logger = getLogger(__name__)
+
+
+def init_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)  # type: ignore
+    torch.cuda.manual_seed(seed)  # type: ignore
 
 
 class DetectionPlot:
@@ -31,21 +46,36 @@ class DetectionPlot:
             shape = image.shape
             raise ValueError(f"invald shape={shape}")
 
-    def with_boxes(
+    def with_yolo_boxes(
         self,
-        boxes: Tensor,
+        boxes: YoloBoxes,
         probs: t.Optional[Tensor] = None,
         color: str = "black",
         fontsize: int = 7,
     ) -> None:
+        self.with_coco_boxes(
+            boxes=yolo_to_coco(boxes, size=(self.w, self.h)),
+            probs=probs,
+            color=color,
+            fontsize=fontsize,
+        )
+
+    def with_coco_boxes(
+        self,
+        boxes: CoCoBoxes,
+        probs: t.Optional[Tensor] = None,
+        color: str = "black",
+        fontsize: int = 7,
+    ) -> None:
+        """
+        boxes: coco format
+        """
         b, _ = boxes.shape
         _probs = probs if probs is not None else torch.ones((b,))
         _boxes = boxes.clone()
-        _boxes[:, [0, 2]] = boxes[:, [0, 2]] * self.w
-        _boxes[:, [1, 3]] = boxes[:, [1, 3]] * self.h
         for box, p in zip(_boxes, _probs):
-            x0 = box[0] - box[2] / 2
-            y0 = box[1] - box[3] / 2
+            x0 = box[0]
+            y0 = box[1]
             self.ax.text(x0, y0, f"{p:.2f}", fontsize=fontsize, color=color)
             rect = mpatches.Rectangle(
                 (x0, y0),
@@ -56,39 +86,3 @@ class DetectionPlot:
                 linewidth=1,
             )
             self.ax.add_patch(rect)
-
-
-def plot_boxes(
-    path: str,
-    boxes: Tensor,
-    probs: t.Optional[Tensor] = None,
-    size: t.Tuple[int, int] = (128, 128),
-) -> None:
-    fig, ax = plt.subplots(figsize=(6, 6))
-    w, h = size
-    ax.grid(False)
-    ax.imshow(torch.ones(w, h, 3))
-    boxes[:, [0, 2]] = boxes[:, [0, 2]] * w
-    boxes[:, [1, 3]] = boxes[:, [1, 3]] * h
-    _probs = probs if probs is not None else torch.ones((w, h))
-    for box, p in zip(boxes, _probs):
-        ax.text(box[0], box[1], f"{p:.2f}", fontsize=5)
-        rect = mpatches.Rectangle(
-            (box[0] - box[2] / 2, box[1] - box[3] / 2),
-            width=box[2],
-            height=box[3],
-            fill=False,
-            edgecolor="red",
-            linewidth=2,
-        )
-        ax.add_patch(rect)
-    plt.savefig(path)
-    plt.close()
-
-
-def plot_heatmap(heatmap: Tensor, path: t.Union[str, Path]) -> None:
-    fig, ax = plt.subplots(figsize=(6, 6))
-    ax.grid(False)
-    ax.imshow(heatmap, interpolation="nearest")
-    plt.savefig(path)
-    plt.close()
