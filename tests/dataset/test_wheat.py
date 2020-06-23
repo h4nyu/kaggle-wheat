@@ -1,10 +1,9 @@
 import torch
 from app.dataset.wheat import WheatDataset
-from app.models.centernet import PreProcess
 from torch.utils.data import DataLoader
 from app import config
 from pathlib import Path
-from app.utils import DetectionPlot
+from object_detection.utils import DetectionPlot
 from app import config
 
 

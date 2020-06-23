@@ -5,9 +5,9 @@ import typing as t
 import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedKFold
 from torch.utils.data import DataLoader, Subset, ConcatDataset
-from app.models.centernet import collate_fn, CenterNet, Visualize, Trainer
+from object_detection.models.centernet import collate_fn, CenterNet, Visualize, Trainer
+from object_detection.model_loader import ModelLoader
 from app.dataset.wheat import WheatDataset
-from app.model_loader import ModelLoader
 from app import config
 from app.preprocess import kfold
 
