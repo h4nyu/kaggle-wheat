@@ -9,9 +9,9 @@ import matplotlib.patches as mpatches
 import torchvision.transforms as T
 import albumentations as albm
 from glob import glob
-from app.entities.box import CoCoBoxes, coco_to_yolo
-from app.entities.image import ImageSize, ImageId, Image
-from app.entities import Sample
+from object_detection.entities.box import CoCoBoxes, coco_to_yolo
+from object_detection.entities.image import ImageSize, ImageId, Image
+from object_detection.entities import Sample
 from albumentations.pytorch.transforms import ToTensorV2
 from skimage.io import imread
 from cytoolz.curried import pipe, groupby, valmap

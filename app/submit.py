@@ -1,6 +1,6 @@
 import typing as t
 import pandas as pd
-from app.entities import PredBoxes
+from object_detection.entities import PredBoxes
 
 
 def to_df(preds: t.List[PredBoxes]) -> t.Any:
