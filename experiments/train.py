@@ -65,4 +65,4 @@ trainer = Trainer(
     "cuda",
     criterion=criterion,
 )
-trainer.train(100)
+trainer.train(1000)
