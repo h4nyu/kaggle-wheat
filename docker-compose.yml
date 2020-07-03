@@ -16,3 +16,4 @@ services:
     environment:
       - KAGGLE_USERNAME
       - KAGGLE_KEY
+      - KAGGLE_PROXY
