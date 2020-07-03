@@ -10,7 +10,7 @@ working_dir = "/kaggle/working"
 test_image_dir = "/kaggle/input/global-wheat-detection/test"
 train_image_dir = "/kaggle/input/global-wheat-detection/train"
 
-max_size = 1024
+max_size = 512
 
 device = "cuda"
 random_state = 777
