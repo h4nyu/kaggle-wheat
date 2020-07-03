@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedKFold
 from app.dataset.wheat import WheatDataset
 from torch.utils.data import DataLoader, Subset, ConcatDataset
+from object_detection.meters import BestWatcher
+from object_detection.metrics import MeanPrecition
 from object_detection.models.backbones import ResNetBackbone
 from object_detection.models.centernet import (
     collate_fn,
@@ -51,18 +53,21 @@ backbone = ResNetBackbone("resnet34", out_channels=channels)
 out_dir = f"/kaggle/input/models/{fold_idx}"
 model = CenterNet(channels=channels, backbone=backbone, out_idx=4)
 model_loader = ModelLoader(out_dir=out_dir)
-criterion = Criterion(sizemap_weight=1.0, sigma=0.3)
+criterion = Criterion(sizemap_weight=1.0, sigma=0.5)
 
-visualize = Visualize(out_dir, "centernet", limit=10)
+visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
+best_watcher = BestWatcher(mode="max")
 trainer = Trainer(
-    model,
-    train_loader,
-    test_loader,
-    model_loader,
-    optimizer,
-    visualize,
-    "cuda",
+    model=model,
+    train_loader=train_loader,
+    test_loader=test_loader,
+    model_loader=model_loader,
+    optimizer=optimizer,
+    visualize=visualize,
+    device="cuda",
     criterion=criterion,
+    get_score=MeanPrecition(),
+    best_watcher=best_watcher,
 )
 trainer.train(1000)

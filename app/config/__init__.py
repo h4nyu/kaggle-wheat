@@ -31,7 +31,7 @@ cost_class = 1
 cost_box = 1
 cost_giou = 1
 
-batch_size: int = 16
+batch_size: int = 8
 no_grad_batch_size: int = 16
 num_workers: int = min(batch_size, os.cpu_count()) # type:ignore
 scale_factor = 2
