@@ -53,7 +53,7 @@ model = CenterNet(channels=channels, backbone=backbone, out_idx=4)
 model_loader = ModelLoader(out_dir=out_dir)
 criterion = Criterion(sizemap_weight=1.0, sigma=0.3)
 
-visualize = Visualize("./", "centernet", limit=10)
+visualize = Visualize(out_dir, "centernet", limit=10)
 optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
 trainer = Trainer(
     model,
@@ -61,7 +61,7 @@ trainer = Trainer(
     test_loader,
     model_loader,
     optimizer,
-    Visualize("/store/centernet", "test", limit=2),
+    visualize,
     "cuda",
     criterion=criterion,
 )
