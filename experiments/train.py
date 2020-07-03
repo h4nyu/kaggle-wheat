@@ -25,6 +25,7 @@ from app.preprocess import kfold
 ## config
 fold_idx = 0
 channels = 128
+lr=1e-4
 ###
 
 dataset = WheatDataset(
@@ -53,10 +54,10 @@ backbone = ResNetBackbone("resnet34", out_channels=channels)
 out_dir = f"/kaggle/input/models/{fold_idx}"
 model = CenterNet(channels=channels, backbone=backbone, out_idx=4)
 model_loader = ModelLoader(out_dir=out_dir)
-criterion = Criterion(sizemap_weight=1.0, sigma=0.5)
+criterion = Criterion(sizemap_weight=1.0, sigma=0.4)
 
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
-optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
+optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
 trainer = Trainer(
     model=model,
