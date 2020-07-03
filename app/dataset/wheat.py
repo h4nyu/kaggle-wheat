@@ -9,9 +9,15 @@ import matplotlib.patches as mpatches
 import torchvision.transforms as T
 import albumentations as albm
 from glob import glob
-from object_detection.entities.box import CoCoBoxes, coco_to_yolo
-from object_detection.entities.image import ImageSize, ImageId, Image
-from object_detection.entities import Sample
+from object_detection.entities import (
+    Sample,
+    ImageSize,
+    ImageId,
+    Image,
+    CoCoBoxes,
+    coco_to_yolo,
+    Labels,
+)
 from albumentations.pytorch.transforms import ToTensorV2
 from skimage.io import imread
 from cytoolz.curried import pipe, groupby, valmap
@@ -19,7 +25,6 @@ from typing_extensions import Literal
 
 
 from pathlib import Path
-from app import config
 from torch import Tensor
 from torch.utils.data import Dataset
 from albumentations.pytorch.transforms import ToTensorV2
@@ -49,8 +54,8 @@ def load_lables(
     )
 
 
-def get_img(image_id: ImageId) -> t.Any:
-    image_path = f"{config.image_dir}/{image_id}.jpg"
+def get_img(image_id: ImageId, image_dir: Path) -> t.Any:
+    image_path = f"{image_dir}/{image_id}.jpg"
     return (imread(image_path) / 255).astype(np.float32)
 
 
@@ -58,6 +63,7 @@ class WheatDataset(Dataset):
     def __init__(
         self,
         annot_file: str,
+        image_dir: str,
         max_size: int = 512,
         mode: Literal["train", "test"] = "train",
     ) -> None:
@@ -65,8 +71,9 @@ class WheatDataset(Dataset):
         self.annot_file = Path(annot_file)
         self.rows = load_lables(annot_file)
         self.mode = mode
+        self.image_dir = Path(image_dir)
         self.cache: t.Dict[str, t.Any] = dict()
-        self.image_dir = Path(config.image_dir)
+        self.image_dir = Path(image_dir)
 
         bbox_params = {"format": "coco", "label_fields": ["labels"]}
         self.pre_transforms = albm.Compose(
@@ -89,7 +96,7 @@ class WheatDataset(Dataset):
 
     def __getitem__(self, index: int) -> Sample:
         image_id, _, boxes = self.rows[index]
-        image = get_img(image_id)
+        image = get_img(image_id=image_id, image_dir=self.image_dir)
         labels = np.zeros(boxes.shape[0])
         res = self.pre_transforms(image=image, bboxes=boxes, labels=labels)
         if self.mode == "train":
@@ -100,7 +107,7 @@ class WheatDataset(Dataset):
         _, h, w = image.shape
         boxes = CoCoBoxes(torch.tensor(res["bboxes"]).float())
         yolo_boxes = coco_to_yolo(boxes, (w, h))
-        return image_id, image, yolo_boxes
+        return (image_id, image, yolo_boxes, Labels(labels))
 
 
 #

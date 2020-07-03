@@ -3,13 +3,14 @@ plot_dir = "/kaggle/plot"
 image_dir = "/kaggle/images"
 submition_csv = "/kaggle/sample_submission.csv"
 root_dir = "/kaggle"
-test_image_dir = "/kaggle/input/global-wheat-detection/test"
 output_dir = "/kaggle/working"
 model_dir = "/kaggle/input/models"
 annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 working_dir = "/kaggle/working"
+test_image_dir = "/kaggle/input/global-wheat-detection/test"
+train_image_dir = "/kaggle/input/global-wheat-detection/train"
 
-max_size = 512
+max_size = 1024
 
 device = "cuda"
 random_state = 777
@@ -29,7 +30,7 @@ cost_class = 1
 cost_box = 1
 cost_giou = 1
 
-batch_size: int = 8
+batch_size: int = 4
 no_grad_batch_size: int = 16
 num_workers: int = 8
 scale_factor = 2

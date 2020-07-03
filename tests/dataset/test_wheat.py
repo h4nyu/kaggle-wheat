@@ -8,14 +8,15 @@ from app import config
 
 
 def test_plotrow() -> None:
-    dataset = WheatDataset(config.annot_file,)
-    image_id, img, boxes = dataset[0]
+    dataset = WheatDataset(config.annot_file, config.train_image_dir)
+    image_id, img, boxes, _ = dataset[0]
     assert img.dtype == torch.float32
     assert boxes.dtype == torch.float32
 
     for i in range(5):
-        _, img, boxes = dataset[i]
-        plot = DetectionPlot(figsize=(6, 6))
+        _, img, boxes, _ = dataset[i]
+        _, h, w = img.shape
+        plot = DetectionPlot(figsize=(10, 10), w=w, h=h)
         plot.with_image(img)
         plot.with_yolo_boxes(boxes, color="red")
         plot.save(f"{config.working_dir}/test-dataset-{i}.png")
