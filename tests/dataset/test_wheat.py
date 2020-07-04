@@ -14,7 +14,7 @@ def test_plotrow() -> None:
     assert boxes.dtype == torch.float32
 
     for i in range(5):
-        _, img, boxes, _ = dataset[i]
+        _, img, boxes, _ = dataset[1]
         _, h, w = img.shape
         plot = DetectionPlot(figsize=(10, 10), w=w, h=h)
         plot.with_image(img)

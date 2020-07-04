@@ -1,4 +1,5 @@
 import os
+
 label_path = "/kaggle/train.csv"
 plot_dir = "/kaggle/plot"
 image_dir = "/kaggle/images"
@@ -33,5 +34,5 @@ cost_giou = 1
 
 batch_size: int = 8
 no_grad_batch_size: int = 16
-num_workers: int = min(batch_size, os.cpu_count()) # type:ignore
+num_workers: int = min(batch_size, os.cpu_count())  # type:ignore
 scale_factor = 2
