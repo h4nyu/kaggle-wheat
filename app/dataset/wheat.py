@@ -79,15 +79,15 @@ class WheatDataset(Dataset):
         )
         self.train_transforms = A.Compose(
             [
-                A.Resize(p=1, height=max_size, width=max_size),
-                #  A.RGBShift(),
-                #  A.VerticalFlip(),
-                #  A.RandomRotate90(),
-                #  A.HorizontalFlip(),
-                #  A.RandomBrightnessContrast(p=1),
-                #  A.CLAHE(p=1),
-                #  A.ShiftScaleRotate(),
-                #  A.GaussNoise(),
+                A.RandomResizedCrop(p=1, height=max_size, width=max_size),
+                A.RGBShift(),
+                A.VerticalFlip(),
+                A.RandomRotate90(),
+                A.HorizontalFlip(),
+                A.RandomBrightnessContrast(p=1),
+                A.CLAHE(p=1),
+                A.ShiftScaleRotate(),
+                A.GaussNoise(),
             ],
             bbox_params=bbox_params,
         )
