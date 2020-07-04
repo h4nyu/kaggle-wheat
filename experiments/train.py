@@ -29,7 +29,7 @@ fold_idx = 0
 channels = 128
 lr = 1e-3
 max_size = 512
-batch_size = 12
+batch_size = 6
 out_idx: PyramidIdx = 5
 ###
 
