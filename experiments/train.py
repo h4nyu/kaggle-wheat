@@ -29,8 +29,11 @@ fold_idx = 0
 channels = 128
 lr = 1e-3
 max_size = 512
-batch_size = 4
+batch_size = 6
 out_idx: PyramidIdx = 5
+box_threshold=0.1
+sigma=2.0
+heatmap_weight=0.1
 ###
 
 dataset = WheatDataset(
@@ -57,12 +60,12 @@ backbone = ResNetBackbone("resnet50", out_channels=channels)
 out_dir = f"/kaggle/input/models/{fold_idx}"
 model = CenterNet(channels=channels, backbone=backbone, out_idx=out_idx)
 model_loader = ModelLoader(out_dir=out_dir)
-criterion = Criterion(heatmap_weight=5.0, sigma=0.3)
+criterion = Criterion(heatmap_weight=heatmap_weight, sigma=sigma)
 
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
-to_boxes = ToBoxes(threshold=0.3, limit=100)
+to_boxes = ToBoxes(threshold=box_threshold, limit=100)
 trainer = Trainer(
     model=model,
     train_loader=train_loader,
