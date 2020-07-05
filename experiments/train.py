@@ -33,7 +33,7 @@ batch_size = 4
 out_idx: PyramidIdx = 5
 box_threshold=0.1
 sigma=2.0
-heatmap_weight=0.1
+heatmap_weight=1.0
 ###
 
 dataset = WheatDataset(
