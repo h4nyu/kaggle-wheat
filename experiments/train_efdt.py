@@ -10,13 +10,12 @@ from torch.utils.data import DataLoader, Subset, ConcatDataset
 from object_detection.meters import BestWatcher
 from object_detection.metrics import MeanPrecition
 from object_detection.models.backbones.resnet import ResNetBackbone
-from object_detection.models.centernet import (
+from object_detection.models.efficientdet import (
     collate_fn,
-    CenterNet,
+    EfficientDet,
     Trainer,
-    Visualize,
     Criterion,
-    Reg,
+    Visualize,
     ToBoxes,
 )
 from object_detection.entities import PyramidIdx
@@ -34,8 +33,9 @@ batch_size = 7
 out_idx: PyramidIdx = 4
 box_threshold = 0.1
 sigma = 3.0
-heatmap_weight = 1.0
-sizemap_weight = 2.0
+confidence_threshold = 0.5
+nms_threshold = 0.3
+channels = 128
 
 box_limit = 100
 ### config ###
@@ -62,27 +62,28 @@ test_loader = DataLoader(
 )
 backbone = ResNetBackbone("resnet50", out_channels=channels)
 out_dir = f"/kaggle/input/models/{fold_idx}"
-model = CenterNet(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
+model = EfficientDet(num_classes=1, channels=channels, backbone=backbone)
 model_loader = ModelLoader(out_dir=out_dir)
-criterion = Criterion(
-    heatmap_weight=heatmap_weight, sizemap_weight=sizemap_weight, sigma=sigma
-)
-
+criterion = Criterion()
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
-to_boxes = ToBoxes(threshold=box_threshold, limit=box_limit)
+get_score = MeanPrecition()
+to_boxes = ToBoxes(
+    nms_threshold=nms_threshold, confidence_threshold=confidence_threshold,
+)
+
 trainer = Trainer(
-    model=model,
+    model,
     train_loader=train_loader,
     test_loader=test_loader,
     model_loader=model_loader,
     optimizer=optimizer,
     visualize=visualize,
-    device="cuda",
     criterion=criterion,
-    get_score=MeanPrecition(),
     best_watcher=best_watcher,
+    get_score=get_score,
+    device="cuda",
     to_boxes=to_boxes,
 )
 trainer.train(1000)
