@@ -40,21 +40,24 @@ sizemap_weight = 2.0
 box_limit = 100
 ### config ###
 
-dataset = WheatDataset(
-    image_dir=config.train_image_dir, annot_file=config.annot_file, max_size=max_size,
+train_dataset = WheatDataset(
+    image_dir=config.train_image_dir, annot_file=config.annot_file, max_size=max_size, mode="train",
 )
-fold_keys = [x[2].shape[0] // 20 for x in dataset.rows]
+test_dataset = WheatDataset(
+    image_dir=config.train_image_dir, annot_file=config.annot_file, max_size=max_size, mode="test"
+)
+fold_keys = [x[2].shape[0] // 20 for x in test_dataset.rows]
 train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[fold_idx]
 
 train_loader = DataLoader(
-    Subset(dataset, train_idx),
+    Subset(train_dataset, train_idx),
     batch_size=batch_size,
     drop_last=True,
     collate_fn=collate_fn,
     num_workers=config.num_workers,
 )
 test_loader = DataLoader(
-    Subset(dataset, test_idx),
+    Subset(test_dataset, test_idx),
     batch_size=batch_size,
     drop_last=False,
     collate_fn=collate_fn,
