@@ -9,7 +9,7 @@ from app.dataset.wheat import WheatDataset
 from torch.utils.data import DataLoader, Subset, ConcatDataset
 from object_detection.meters import BestWatcher
 from object_detection.metrics import MeanPrecition
-from object_detection.models.backbones.resnet import ResNetBackbone
+from object_detection.models.backbones.effnet import EfficientNetBackbone
 from object_detection.models.centernet import (
     collate_fn,
     CenterNet,
@@ -27,14 +27,14 @@ from app.preprocess import kfold
 ### config ###
 fold_idx = 0
 channels = 128
-depth = 3
+depth = 1
 lr = 1e-3
 max_size = 512
-batch_size = 7
+batch_size = 12
 out_idx: PyramidIdx = 4
 box_threshold = 0.2
-sigma = 12.0
-heatmap_weight = 3.0
+sigma = 4.0
+heatmap_weight = 1.0
 sizemap_weight = 1.0
 to_boxes_kernel_size = 5
 
@@ -64,8 +64,8 @@ test_loader = DataLoader(
     collate_fn=collate_fn,
     num_workers=config.num_workers,
 )
-backbone = ResNetBackbone("resnet50", out_channels=channels)
-out_dir = f"/kaggle/input/models/{fold_idx}"
+backbone = EfficientNetBackbone(3, out_channels=channels)
+out_dir = f"/kaggle/input/models/ctdt/{fold_idx}"
 model = CenterNet(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
 model_loader = ModelLoader(out_dir=out_dir)
 criterion = Criterion(

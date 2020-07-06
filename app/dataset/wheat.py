@@ -110,7 +110,7 @@ class WheatDataset(Dataset):
         _, h, w = image.shape
         boxes = CoCoBoxes(torch.tensor(res["bboxes"]).float())
         yolo_boxes = coco_to_yolo(boxes, (w, h))
-        return (image_id, image, yolo_boxes, Labels(labels))
+        return (image_id, image, yolo_boxes, Labels(torch.from_numpy(labels)))
 
 
 #

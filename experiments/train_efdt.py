@@ -26,10 +26,10 @@ from app.preprocess import kfold
 ### config ###
 fold_idx = 0
 channels = 128
-depth = 3
+depth = 1
 lr = 1e-3
-max_size = 512
-batch_size = 7
+max_size = 1024
+batch_size = 2
 out_idx: PyramidIdx = 4
 box_threshold = 0.1
 sigma = 3.0
@@ -61,11 +61,11 @@ test_loader = DataLoader(
     num_workers=config.num_workers,
 )
 backbone = ResNetBackbone("resnet50", out_channels=channels)
-out_dir = f"/kaggle/input/models/{fold_idx}"
+out_dir = f"/kaggle/input/models/efdt/{fold_idx}"
 model = EfficientDet(num_classes=1, channels=channels, backbone=backbone)
 model_loader = ModelLoader(out_dir=out_dir)
 criterion = Criterion()
-visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
+visualize = Visualize(out_dir, "efdt", limit=2, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
 get_score = MeanPrecition()
