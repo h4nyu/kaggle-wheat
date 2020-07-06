@@ -32,10 +32,11 @@ lr = 1e-3
 max_size = 512
 batch_size = 7
 out_idx: PyramidIdx = 4
-box_threshold = 0.1
-sigma = 3.0
-heatmap_weight = 1.0
-sizemap_weight = 2.0
+box_threshold = 0.2
+sigma = 12.0
+heatmap_weight = 3.0
+sizemap_weight = 1.0
+to_boxes_kernel_size = 5
 
 box_limit = 100
 ### config ###
@@ -74,7 +75,7 @@ criterion = Criterion(
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
-to_boxes = ToBoxes(threshold=box_threshold, limit=box_limit)
+to_boxes = ToBoxes(threshold=box_threshold, limit=box_limit, kernel_size=to_boxes_kernel_size)
 trainer = Trainer(
     model=model,
     train_loader=train_loader,
