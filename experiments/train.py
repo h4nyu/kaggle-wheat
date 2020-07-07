@@ -28,7 +28,7 @@ from app.preprocess import kfold
 fold_idx = 0
 channels = 128
 depth = 1
-lr = 5e-4
+lr = 1e-4
 max_size = 512
 batch_size = 12
 out_idx: PyramidIdx = 4
