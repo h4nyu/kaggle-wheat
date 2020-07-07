@@ -28,14 +28,14 @@ from app.preprocess import kfold
 fold_idx = 0
 channels = 128
 depth = 1
-lr = 1e-4
+lr = 5e-4
 max_size = 512
 batch_size = 12
 out_idx: PyramidIdx = 4
 box_threshold = 0.3
 sigma = 6.0
 heatmap_weight = 1.0
-sizemap_weight = 1.0
+sizemap_weight = 2.0
 to_boxes_kernel_size = 5
 
 box_limit = 100
