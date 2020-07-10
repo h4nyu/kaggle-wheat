@@ -30,23 +30,30 @@ channels = 128
 depth = 1
 lr = 1e-4
 max_size = 512
-batch_size = 12
+batch_size = 14
 out_idx: PyramidIdx = 5
 box_threshold = 0.2
-sigma = 6.0
+sigma = 1.0
 heatmap_weight = 1.0
 box_weight = 1.0
 to_boxes_kernel_size = 3
+nms_threshold = 0.75
 
 box_limit = 100
 out_dir = f"/kaggle/input/models/ctdtv1/{fold_idx}"
 ### config ###
 
 train_dataset = WheatDataset(
-    image_dir=config.train_image_dir, annot_file=config.annot_file, max_size=max_size, mode="train",
+    image_dir=config.train_image_dir,
+    annot_file=config.annot_file,
+    max_size=max_size,
+    mode="train",
 )
 test_dataset = WheatDataset(
-    image_dir=config.train_image_dir, annot_file=config.annot_file, max_size=max_size, mode="test"
+    image_dir=config.train_image_dir,
+    annot_file=config.annot_file,
+    max_size=max_size,
+    mode="test",
 )
 fold_keys = [x[2].shape[0] // 30 for x in test_dataset.rows]
 train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[fold_idx]
@@ -68,14 +75,17 @@ test_loader = DataLoader(
 backbone = EfficientNetBackbone(3, out_channels=channels)
 model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
 model_loader = ModelLoader(out_dir=out_dir)
-criterion = Criterion(
-    heatmap_weight=heatmap_weight, box_weight=box_weight, sigma=sigma
-)
+criterion = Criterion(heatmap_weight=heatmap_weight, box_weight=box_weight, sigma=sigma)
 
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
-to_boxes = ToBoxes(threshold=box_threshold, limit=box_limit, kernel_size=to_boxes_kernel_size)
+to_boxes = ToBoxes(
+    threshold=box_threshold,
+    limit=box_limit,
+    kernel_size=to_boxes_kernel_size,
+    nms_threshold=nms_threshold,
+)
 trainer = Trainer(
     model=model,
     train_loader=train_loader,

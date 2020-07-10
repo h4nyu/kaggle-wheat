@@ -42,10 +42,16 @@ box_limit = 100
 ### config ###
 
 train_dataset = WheatDataset(
-    image_dir=config.train_image_dir, annot_file=config.annot_file, max_size=max_size, mode="train",
+    image_dir=config.train_image_dir,
+    annot_file=config.annot_file,
+    max_size=max_size,
+    mode="train",
 )
 test_dataset = WheatDataset(
-    image_dir=config.train_image_dir, annot_file=config.annot_file, max_size=max_size, mode="test"
+    image_dir=config.train_image_dir,
+    annot_file=config.annot_file,
+    max_size=max_size,
+    mode="test",
 )
 fold_keys = [x[2].shape[0] // 20 for x in test_dataset.rows]
 train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[fold_idx]
@@ -75,7 +81,9 @@ criterion = Criterion(
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
-to_boxes = ToBoxes(threshold=box_threshold, limit=box_limit, kernel_size=to_boxes_kernel_size)
+to_boxes = ToBoxes(
+    threshold=box_threshold, limit=box_limit, kernel_size=to_boxes_kernel_size
+)
 trainer = Trainer(
     model=model,
     train_loader=train_loader,
