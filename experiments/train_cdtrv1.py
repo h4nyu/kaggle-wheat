@@ -26,20 +26,25 @@ from app.preprocess import kfold
 
 ### config ###
 fold_idx = 0
-channels = 128
-depth = 1
 lr = 1e-4
 max_size = 512
 batch_size = 14
+
+depth = 1
 out_idx: PyramidIdx = 5
-box_threshold = 0.2
+channels = 128
+
 sigma = 1.0
 heatmap_weight = 1.0
 box_weight = 1.0
-to_boxes_kernel_size = 3
-nms_threshold = 0.75
+iou_threshold = 0.3
 
-box_limit = 100
+to_boxes_kernel_size = 3
+box_threshold = 0.3
+nms_threshold = 0.5
+
+
+box_limit = 200
 out_dir = f"/kaggle/input/models/ctdtv1/{fold_idx}"
 ### config ###
 
@@ -75,7 +80,12 @@ test_loader = DataLoader(
 backbone = EfficientNetBackbone(3, out_channels=channels)
 model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
 model_loader = ModelLoader(out_dir=out_dir)
-criterion = Criterion(heatmap_weight=heatmap_weight, box_weight=box_weight, sigma=sigma)
+criterion = Criterion(
+    heatmap_weight=heatmap_weight,
+    box_weight=box_weight,
+    sigma=sigma,
+    iou_threshold=iou_threshold,
+)
 
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
