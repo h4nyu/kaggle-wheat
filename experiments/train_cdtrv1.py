@@ -35,8 +35,8 @@ out_idx: PyramidIdx = 5
 box_threshold = 0.2
 sigma = 6.0
 heatmap_weight = 1.0
-sizemap_weight = 2.0
-to_boxes_kernel_size = 5
+box_weight = 1.0
+to_boxes_kernel_size = 3
 
 box_limit = 100
 out_dir = f"/kaggle/input/models/ctdtv1/{fold_idx}"
@@ -69,7 +69,7 @@ backbone = EfficientNetBackbone(3, out_channels=channels)
 model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
 model_loader = ModelLoader(out_dir=out_dir)
 criterion = Criterion(
-    heatmap_weight=heatmap_weight, sizemap_weight=sizemap_weight, sigma=sigma
+    heatmap_weight=heatmap_weight, box_weight=box_weight, sigma=sigma
 )
 
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
