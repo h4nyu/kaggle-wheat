@@ -66,7 +66,7 @@ test_loader = DataLoader(
     num_workers=config.num_workers,
 )
 backbone = EfficientNetBackbone(3, out_channels=channels)
-model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth, anchors=Anchors(size=4))
+model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
 model_loader = ModelLoader(out_dir=out_dir)
 criterion = Criterion(
     heatmap_weight=heatmap_weight, sizemap_weight=sizemap_weight, sigma=sigma
