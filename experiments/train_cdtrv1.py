@@ -23,30 +23,39 @@ from object_detection.entities import PyramidIdx
 from object_detection.model_loader import ModelLoader
 from app import config
 from app.preprocess import kfold
+from logging import getLogger, FileHandler
+
 
 ### config ###
 fold_idx = 0
-lr = 1e-4
-max_size = 512
-batch_size = 14
+lr = 1e-3
+max_size = 512 * 1
+batch_size = 16
 
-depth = 1
+fpn_depth = 1
+hm_depth = 1
+box_depth = 1
 out_idx: PyramidIdx = 5
-channels = 128
+channels = 64
 
 sigma = 1.0
 heatmap_weight = 1.0
-box_weight = 1.0
-iou_threshold = 0.3
+box_weight = 50.0
+iou_threshold = 0.0
 
 to_boxes_kernel_size = 3
-box_threshold = 0.3
+box_threshold = 0.39
 nms_threshold = 0.5
 
 
 box_limit = 200
-out_dir = f"/kaggle/input/models/ctdtv1/{fold_idx}"
 ### config ###
+
+out_dir = f"/kaggle/input/models/ctdtv1-fpn_depth-{fpn_depth}-hm_depth-{hm_depth}-box_depth-{box_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
+Path(out_dir).mkdir(exist_ok=True, parents=True)
+logger = getLogger()
+file_handler = FileHandler(filename=f"{out_dir}/train.log")
+logger.addHandler(file_handler)
 
 train_dataset = WheatDataset(
     image_dir=config.train_image_dir,
@@ -68,17 +77,26 @@ train_loader = DataLoader(
     batch_size=batch_size,
     drop_last=True,
     collate_fn=collate_fn,
+    shuffle=True,
     num_workers=config.num_workers,
 )
 test_loader = DataLoader(
     Subset(test_dataset, test_idx),
     batch_size=batch_size,
     drop_last=False,
+    shuffle=False,
     collate_fn=collate_fn,
     num_workers=config.num_workers,
 )
 backbone = EfficientNetBackbone(3, out_channels=channels)
-model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
+model = CenterNetV1(
+    channels=channels,
+    backbone=backbone,
+    out_idx=out_idx,
+    fpn_depth=fpn_depth,
+    hm_depth=hm_depth,
+    box_depth=box_depth,
+)
 model_loader = ModelLoader(out_dir=out_dir)
 criterion = Criterion(
     heatmap_weight=heatmap_weight,
@@ -87,7 +105,7 @@ criterion = Criterion(
     iou_threshold=iou_threshold,
 )
 
-visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
+visualize = Visualize(out_dir, "centernet", limit=4, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
 to_boxes = ToBoxes(
