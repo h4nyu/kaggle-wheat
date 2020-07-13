@@ -43,7 +43,7 @@ box_weight = 50.0
 iou_threshold = 0.6
 use_peak = False
 
-confidence_threshold = 0.39
+confidence_threshold = 0.38
 
 fpn_depth = 1
 hm_depth = 1
