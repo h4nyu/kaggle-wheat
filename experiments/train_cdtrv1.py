@@ -30,7 +30,6 @@ from app.preprocess import kfold
 ### config ###
 fold_idx = 0
 lr = 1e-5
-:wa
 max_size = 512
 batch_size = 16
 
