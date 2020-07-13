@@ -36,8 +36,6 @@ sigma = 3.0
 confidence_threshold = 0.5
 nms_threshold = 0.3
 channels = 128
-
-box_limit = 100
 ### config ###
 
 dataset = WheatDataset(

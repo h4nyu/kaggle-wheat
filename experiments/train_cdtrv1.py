@@ -18,6 +18,7 @@ from object_detection.models.centernetv1 import (
     Criterion,
     ToBoxes,
     Anchors,
+    BoxMerge,
 )
 from object_detection.entities import PyramidIdx
 from object_detection.model_loader import ModelLoader
@@ -36,16 +37,15 @@ channels = 128
 
 sigma = 1.0
 heatmap_weight = 1.0
-box_weight = 1.0
-iou_threshold = 0.3
+box_weight = 100.0
+iou_threshold = 0.4
+use_peak = False
 
 to_boxes_kernel_size = 3
-box_threshold = 0.3
-nms_threshold = 0.5
+confidence_threshold = 0.3
+hm_depth=1
 
-
-box_limit = 200
-out_dir = f"/kaggle/input/models/ctdtv1/{fold_idx}"
+out_dir = f"/kaggle/input/models/ctdtv1-hm_depth-{hm_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
 ### config ###
 
 train_dataset = WheatDataset(
@@ -67,6 +67,7 @@ train_loader = DataLoader(
     Subset(train_dataset, train_idx),
     batch_size=batch_size,
     drop_last=True,
+    shuffle=True,
     collate_fn=collate_fn,
     num_workers=config.num_workers,
 )
@@ -74,27 +75,29 @@ test_loader = DataLoader(
     Subset(test_dataset, test_idx),
     batch_size=batch_size,
     drop_last=False,
+    shuffle=False,
     collate_fn=collate_fn,
     num_workers=config.num_workers,
 )
 backbone = EfficientNetBackbone(3, out_channels=channels)
-model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, depth=depth)
+model = CenterNetV1(channels=channels, backbone=backbone, out_idx=out_idx, hm_depth=hm_depth)
 model_loader = ModelLoader(out_dir=out_dir)
 criterion = Criterion(
     heatmap_weight=heatmap_weight,
     box_weight=box_weight,
     sigma=sigma,
-    iou_threshold=iou_threshold,
 )
 
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
 best_watcher = BestWatcher(mode="max")
 to_boxes = ToBoxes(
-    threshold=box_threshold,
-    limit=box_limit,
+    threshold=confidence_threshold,
     kernel_size=to_boxes_kernel_size,
-    nms_threshold=nms_threshold,
+    use_peak=use_peak,
+)
+box_merge = BoxMerge(
+    iou_threshold=iou_threshold
 )
 trainer = Trainer(
     model=model,
@@ -108,5 +111,6 @@ trainer = Trainer(
     get_score=MeanPrecition(),
     best_watcher=best_watcher,
     to_boxes=to_boxes,
+    box_merge=box_merge,
 )
 trainer.train(1000)
