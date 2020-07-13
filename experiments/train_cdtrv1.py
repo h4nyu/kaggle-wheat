@@ -29,7 +29,8 @@ from app.preprocess import kfold
 
 ### config ###
 fold_idx = 0
-lr = 1e-4
+lr = 1e-5
+:wa
 max_size = 512
 batch_size = 16
 
@@ -40,7 +41,7 @@ channels = 64
 sigma = 1.0
 heatmap_weight = 1.0
 box_weight = 50.0
-iou_threshold = 0.5
+iou_threshold = 0.6
 use_peak = False
 
 confidence_threshold = 0.39
