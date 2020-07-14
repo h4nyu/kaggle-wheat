@@ -10,8 +10,8 @@ lr = 1e-3
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 max_size = 1024
-batch_size = 8
-num_workers = 8
+batch_size = 4
+num_workers = 4
 
 depth = 1
 out_idx: PyramidIdx = 5
