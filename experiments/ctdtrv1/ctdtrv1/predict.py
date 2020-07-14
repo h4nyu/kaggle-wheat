@@ -21,7 +21,7 @@ predictor = Predictor(
     model=train.model,
     loader=data_loader,
     model_loader=train.model_loader,
-    device="cuda",
+    device=cfg.device,
     box_merge=train.box_merge,
     to_boxes=train.to_boxes,
 )
