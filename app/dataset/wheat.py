@@ -9,7 +9,8 @@ import matplotlib.patches as mpatches
 import torchvision.transforms as T
 from glob import glob
 from object_detection.entities import (
-    Sample,
+    TrainSample,
+    PredictionSample,
     ImageSize,
     ImageId,
     Image,
@@ -95,7 +96,7 @@ class WheatDataset(Dataset):
     def __len__(self) -> int:
         return len(self.rows)
 
-    def __getitem__(self, index: int) -> Sample:
+    def __getitem__(self, index: int) -> TrainSample:
         image_id, _, boxes = self.rows[index]
         image = get_img(image_id=image_id, image_dir=self.image_dir)
         labels = np.zeros(boxes.shape[0])
@@ -112,21 +113,20 @@ class WheatDataset(Dataset):
         return (image_id, image, yolo_boxes, Labels(torch.from_numpy(labels)))
 
 
-#
-#  class PreditionDataset(Dataset):
-#      def __init__(self, image_dir: str = config.test_image_dir,) -> None:
-#          print(f"{config.test_image_dir}/*.jpg")
-#          rows: t.List[t.Tuple[str, Path]] = []
-#          for p in glob(f"{config.test_image_dir}/*.jpg"):
-#              path = Path(p)
-#              rows.append((path.stem, path))
-#          self.rows = rows
-#
-#      def __len__(self) -> int:
-#          return len(self.rows)
-#
-#      def __getitem__(self, index: int) -> t.Tuple[Tensor, str]:
-#          id, path = self.rows[index]
-#          image = (imread(path) / 255).astype(np.float32)
-#          image = transforms(image=image)["image"].float()
-#          return image, id
+class PredictionDataset(Dataset):
+    def __init__(self, image_dir: str, max_size:int ) -> None:
+        rows: t.List[t.Tuple[ImageId, Path]] = []
+        for p in glob(f"{image_dir}/*.jpg"):
+            path = Path(p)
+            rows.append((ImageId(path.stem), path))
+        self.rows = rows
+        self.transforms = A.Compose([A.LongestMaxSize(max_size=max_size), ToTensorV2(),])
+
+    def __len__(self) -> int:
+        return len(self.rows)
+
+    def __getitem__(self, index: int) -> PredictionSample:
+        image_id, path = self.rows[index]
+        img = imread(path)
+        img = self.transforms(image=img)['image'] / 255.0
+        return image_id, Image(img)

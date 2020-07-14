@@ -1,5 +1,5 @@
 import torch
-from app.dataset.wheat import WheatDataset
+from app.dataset.wheat import WheatDataset, PredictionDataset
 from torch.utils.data import DataLoader
 from app import config
 from pathlib import Path
@@ -7,7 +7,7 @@ from object_detection.utils import DetectionPlot
 from app import config
 
 
-def test_plotrow() -> None:
+def test_train_dataset() -> None:
     dataset = WheatDataset(config.annot_file, config.train_image_dir, max_size=1024)
     image_id, img, boxes, _ = dataset[0]
     assert img.dtype == torch.float32
@@ -20,3 +20,8 @@ def test_plotrow() -> None:
         plot.with_image(img)
         plot.with_yolo_boxes(boxes, color="red")
         plot.save(f"{config.working_dir}/test-dataset-{i}.png")
+
+def test_prediction_dataset() -> None:
+    dataset = PredictionDataset("/kaggle/input/global-wheat-detection/test", max_size=512)
+    img_id, img = dataset[0]
+    assert img.dtype == torch.float32
