@@ -9,7 +9,6 @@ from logging import getLogger, FileHandler
 from sklearn.model_selection import StratifiedKFold
 from app.dataset.wheat import WheatDataset
 from torch.utils.data import DataLoader, Subset, ConcatDataset
-from object_detection.meters import BestWatcher
 from object_detection.metrics import MeanPrecition
 from object_detection.models.backbones.effnet import EfficientNetBackbone
 from object_detection.models.centernetv1 import (
@@ -23,13 +22,13 @@ from object_detection.models.centernetv1 import (
     BoxMerge,
 )
 from object_detection.entities import PyramidIdx
-from object_detection.model_loader import ModelLoader
+from object_detection.model_loader import ModelLoader ,BestWatcher
 from app import config
 from app.preprocess import kfold
 
 ### config ###
 fold_idx = 0
-lr = 1e-5
+lr = 1e-3
 max_size = 512
 batch_size = 16
 
@@ -39,11 +38,11 @@ channels = 64
 
 sigma = 1.0
 heatmap_weight = 1.0
-box_weight = 50.0
+box_weight = 20.0
 iou_threshold = 0.6
 use_peak = False
 
-confidence_threshold = 0.38
+confidence_threshold = 0.3
 
 fpn_depth = 1
 hm_depth = 1
@@ -97,14 +96,17 @@ model = CenterNetV1(
     hm_depth=hm_depth,
     box_depth=box_depth,
 )
-model_loader = ModelLoader(out_dir=out_dir)
+model_loader = ModelLoader(
+    out_dir=out_dir,
+    key="test_hm",
+    best_watcher = BestWatcher(mode="min")
+)
 criterion = Criterion(
     heatmap_weight=heatmap_weight, box_weight=box_weight, sigma=sigma,
 )
 
 visualize = Visualize(out_dir, "centernet", limit=10, show_probs=True)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr,)
-best_watcher = BestWatcher(mode="max")
 to_boxes = ToBoxes(threshold=confidence_threshold, use_peak=use_peak,)
 box_merge = BoxMerge(iou_threshold=iou_threshold)
 trainer = Trainer(
@@ -117,8 +119,7 @@ trainer = Trainer(
     device="cuda",
     criterion=criterion,
     get_score=MeanPrecition(),
-    best_watcher=best_watcher,
     to_boxes=to_boxes,
     box_merge=box_merge,
 )
-trainer.train(1000)
+trainer(1000)
