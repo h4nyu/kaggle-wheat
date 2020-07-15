@@ -46,7 +46,7 @@ def evaluate() -> None:
         image_dir=config.train_image_dir,
         max_size=config.max_size,
         mode="test",
-    ), list(range(100)))
+    ), list(range(3000)))
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
     data_loader = DataLoader(
         dataset=dataset,
