@@ -114,13 +114,15 @@ class WheatDataset(Dataset):
 
 
 class PredictionDataset(Dataset):
-    def __init__(self, image_dir: str, max_size:int ) -> None:
+    def __init__(self, image_dir: str, max_size: int) -> None:
         rows: t.List[t.Tuple[ImageId, Path]] = []
         for p in glob(f"{image_dir}/*.jpg"):
             path = Path(p)
             rows.append((ImageId(path.stem), path))
         self.rows = rows
-        self.transforms = A.Compose([A.LongestMaxSize(max_size=max_size), ToTensorV2(),])
+        self.transforms = A.Compose(
+            [A.LongestMaxSize(max_size=max_size), ToTensorV2(),]
+        )
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -128,5 +130,5 @@ class PredictionDataset(Dataset):
     def __getitem__(self, index: int) -> PredictionSample:
         image_id, path = self.rows[index]
         img = imread(path)
-        img = self.transforms(image=img)['image'] / 255.0
+        img = self.transforms(image=img)["image"] / 255.0
         return image_id, Image(img)

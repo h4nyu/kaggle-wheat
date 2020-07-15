@@ -21,7 +21,10 @@ def test_train_dataset() -> None:
         plot.with_yolo_boxes(boxes, color="red")
         plot.save(f"{config.working_dir}/test-dataset-{i}.png")
 
+
 def test_prediction_dataset() -> None:
-    dataset = PredictionDataset("/kaggle/input/global-wheat-detection/test", max_size=512)
+    dataset = PredictionDataset(
+        "/kaggle/input/global-wheat-detection/test", max_size=512
+    )
     img_id, img = dataset[0]
     assert img.dtype == torch.float32
