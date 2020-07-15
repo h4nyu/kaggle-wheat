@@ -41,12 +41,12 @@ def evaluate() -> None:
         out_dir=config.out_dir, key="test_hm", best_watcher=BestWatcher(mode="min")
     )
     box_merge = BoxMerge(iou_threshold=config.iou_threshold)
-    dataset = WheatDataset(
+    dataset = Subset(WheatDataset(
         annot_file=config.annot_file,
         image_dir=config.train_image_dir,
         max_size=config.max_size,
         mode="test",
-    )
+    ), list(range(100)))
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
     data_loader = DataLoader(
         dataset=dataset,

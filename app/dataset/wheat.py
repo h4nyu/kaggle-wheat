@@ -81,7 +81,7 @@ class WheatDataset(Dataset):
         self.train_transforms = A.Compose(
             [
                 A.RandomResizedCrop(
-                    p=1, height=max_size, width=max_size, scale=(0.8, 1.2)
+                    p=1, height=max_size, width=max_size, scale=(0.9, 1.1)
                 ),
                 A.VerticalFlip(),
                 A.RandomRotate90(),
