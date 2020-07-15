@@ -17,3 +17,5 @@ services:
       - KAGGLE_USERNAME
       - KAGGLE_KEY
       - KAGGLE_PROXY
+      - http_proxy
+      - https_proxy
