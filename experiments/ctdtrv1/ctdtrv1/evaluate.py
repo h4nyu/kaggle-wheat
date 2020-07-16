@@ -27,7 +27,7 @@ def _collate_fn(batch: List[TrainSample],) -> Tuple[ImageBatch, List[ImageId]]:
     return ImageBatch(torch.stack(images)), id_batch
 
 
-def evaluate() -> None:
+def evaluate(limit:int=100) -> None:
     backbone = EfficientNetBackbone(3, out_channels=config.channels)
     model = CenterNetV1(
         channels=config.channels,
@@ -46,7 +46,7 @@ def evaluate() -> None:
         image_dir=config.train_image_dir,
         max_size=config.max_size,
         mode="test",
-    ), list(range(3000)))
+    ), list(range(limit)))
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
     data_loader = DataLoader(
         dataset=dataset,
