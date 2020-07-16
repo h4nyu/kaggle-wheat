@@ -40,7 +40,7 @@ def evaluate(limit:int=100) -> None:
     model_loader = ModelLoader(
         out_dir=config.out_dir, key="test_hm", best_watcher=BestWatcher(mode="min")
     )
-    box_merge = BoxMerge(iou_threshold=config.iou_threshold)
+    box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
     dataset = Subset(WheatDataset(
         annot_file=config.annot_file,
         image_dir=config.train_image_dir,

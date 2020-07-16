@@ -11,7 +11,7 @@ lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 max_size = 512
-batch_size = 4
+batch_size = 16
 num_workers = 8
 
 depth = 1
@@ -21,10 +21,11 @@ channels = 64
 sigma = 1.0
 heatmap_weight = 1.0
 box_weight = 10.0
-iou_threshold = 0.6
+iou_threshold = 0.5
 use_peak = False
 
 confidence_threshold = 0.35
+final_threshold = 0.375
 
 fpn_depth = 1
 hm_depth = 1
