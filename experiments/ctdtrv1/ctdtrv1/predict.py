@@ -1,3 +1,5 @@
+from typing import List, Tuple
+from object_detection.entities import YoloBoxes, Confidences, ImageId
 from object_detection.models.centernetv1 import (
     Predictor,
     prediction_collate_fn,
@@ -13,7 +15,7 @@ from app.dataset.wheat import PredictionDataset
 from . import config
 
 
-def predict() -> None:
+def predict() -> Tuple[List[YoloBoxes], List[Confidences], List[ImageId]]:
     backbone = EfficientNetBackbone(3, out_channels=config.channels)
     model = CenterNetV1(
         channels=config.channels,
@@ -38,7 +40,6 @@ def predict() -> None:
         out_dir=config.out_dir, key="test_hm", best_watcher=BestWatcher(mode="min")
     )
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
-
     predictor = Predictor(
         model=model,
         loader=data_loader,
@@ -47,3 +48,4 @@ def predict() -> None:
         box_merge=box_merge,
         to_boxes=to_boxes,
     )
+    return predictor()
