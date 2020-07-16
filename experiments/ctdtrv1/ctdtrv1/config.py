@@ -1,4 +1,5 @@
 from object_detection.entities import PyramidIdx
+from object_detection.models.backbones.effnet import Phi
 import torch
 
 test_image_dir = "/kaggle/input/global-wheat-detection/test"
@@ -14,6 +15,7 @@ max_size = 512
 batch_size = 16
 num_workers = 8
 
+effdet_id:Phi = 4
 depth = 1
 out_idx: PyramidIdx = 5
 channels = 64
@@ -31,4 +33,4 @@ fpn_depth = 1
 hm_depth = 1
 box_depth = 1
 
-out_dir = f"/kaggle/input/models/ctdtv1-fpn_depth-{fpn_depth}-hm_depth-{hm_depth}-box_depth-{box_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
+out_dir = f"/kaggle/input/models/ctdtv1-effdet_id-{effdet_id}-fpn_depth-{fpn_depth}-hm_depth-{hm_depth}-box_depth-{box_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"

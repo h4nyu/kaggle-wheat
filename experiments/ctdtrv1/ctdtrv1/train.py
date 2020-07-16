@@ -59,7 +59,7 @@ def train(epochs: int) -> None:
         collate_fn=collate_fn,
         num_workers=config.num_workers,
     )
-    backbone = EfficientNetBackbone(3, out_channels=config.channels)
+    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
     model = CenterNetV1(
         channels=config.channels,
         backbone=backbone,
@@ -69,7 +69,7 @@ def train(epochs: int) -> None:
         box_depth=config.box_depth,
     )
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key="test_hm", best_watcher=BestWatcher(mode="min")
+        out_dir=config.out_dir, key="score", best_watcher=BestWatcher(mode="max")
     )
     criterion = Criterion(
         heatmap_weight=config.heatmap_weight,
@@ -77,7 +77,7 @@ def train(epochs: int) -> None:
         sigma=config.sigma,
     )
 
-    visualize = Visualize(config.out_dir, "centernet", limit=10, show_probs=True)
+    visualize = Visualize(config.out_dir, "centernet", limit=5, show_probs=True)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
     Trainer(
