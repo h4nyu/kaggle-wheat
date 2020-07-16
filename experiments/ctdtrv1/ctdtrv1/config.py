@@ -12,7 +12,7 @@ lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 max_size = 512
-batch_size = 16
+batch_size = 14
 num_workers = 8
 
 effdet_id:Phi = 4
