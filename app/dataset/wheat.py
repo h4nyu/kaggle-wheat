@@ -86,6 +86,8 @@ class WheatDataset(Dataset):
                 A.VerticalFlip(),
                 A.RandomRotate90(),
                 A.HorizontalFlip(),
+                A.RGBShift(p=0.5),
+                A.MotionBlur(p=0.5),
                 A.RandomBrightnessContrast(p=1),
             ],
             bbox_params=bbox_params,

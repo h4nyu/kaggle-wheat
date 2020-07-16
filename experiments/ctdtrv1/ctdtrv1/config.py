@@ -22,7 +22,7 @@ channels = 64
 
 sigma = 1.0
 heatmap_weight = 1.0
-box_weight = 10.0
+box_weight = 40.0
 iou_threshold = 0.5
 use_peak = False
 

@@ -19,6 +19,7 @@ from object_detection.models.centernetv1 import (
     Criterion,
     ToBoxes,
     Anchors,
+    BoxMerge,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
@@ -71,6 +72,7 @@ def train(epochs: int) -> None:
     model_loader = ModelLoader(
         out_dir=config.out_dir, key="score", best_watcher=BestWatcher(mode="max")
     )
+    box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
     criterion = Criterion(
         heatmap_weight=config.heatmap_weight,
         box_weight=config.box_weight,
@@ -91,4 +93,5 @@ def train(epochs: int) -> None:
         criterion=criterion,
         get_score=MeanPrecition(),
         to_boxes=to_boxes,
+        box_merge=box_merge,
     )(epochs)
