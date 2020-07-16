@@ -17,7 +17,7 @@ num_workers = 8
 
 effdet_id:Phi = 4
 depth = 1
-out_idx: PyramidIdx = 5
+out_idx: PyramidIdx = 4
 channels = 64
 
 sigma = 1.0
