@@ -6,7 +6,7 @@ test_image_dir = "/kaggle/input/global-wheat-detection/test"
 train_image_dir = "/kaggle/input/global-wheat-detection/train"
 annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
-n_splits = 4
+n_splits = 5
 fold_idx = 0
 lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
