@@ -14,25 +14,22 @@ lr = 5e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric:Tuple[str, Literal['max', 'min']] = ("score", "max")
 max_size = 512
-batch_size = 11
+batch_size = 10
 num_workers = 8
 
+## model
 effdet_id:Phi = 4
-depth = 1
-out_idx: PyramidIdx = 5
+out_ids: List[PyramidIdx] = [5,6]
 channels = 128
 
-sigma = 5.0
-heatmap_weight = 1.0
-box_weight = 10.0
+## anchor
+anchor_ratios = [0.33, 1, 3]
+anchor_size = 2
+
+## ToBoxes
 iou_threshold = 0.50
-use_peak = True
 
 confidence_threshold = 0.32
 final_threshold = 0.0
 
-fpn_depth = 1
-hm_depth = 1
-box_depth = 1
-
-out_dir = f"/kaggle/input/models/ctdtv1-effdet_id-{effdet_id}-fpn_depth-{fpn_depth}-hm_depth-{hm_depth}-box_depth-{box_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
+out_dir = f"/kaggle/input/models/effdet-effdet_id-{effdet_id}-out_ids-{len(out_ids)}-channels-{channels}-max_size-{max_size}/{fold_idx}"
