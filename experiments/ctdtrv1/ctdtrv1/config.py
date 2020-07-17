@@ -12,13 +12,13 @@ lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 max_size = 512
-batch_size = 14
+batch_size = 11
 num_workers = 8
 
 effdet_id:Phi = 4
 depth = 1
 out_idx: PyramidIdx = 4
-channels = 64
+channels = 128
 
 sigma = 1.0
 heatmap_weight = 1.0
