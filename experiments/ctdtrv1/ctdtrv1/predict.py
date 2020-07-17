@@ -16,7 +16,7 @@ from . import config
 
 
 def predict() -> Tuple[List[YoloBoxes], List[Confidences], List[ImageId]]:
-    backbone = EfficientNetBackbone(3, out_channels=config.channels)
+    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
     model = CenterNetV1(
         channels=config.channels,
         backbone=backbone,
@@ -37,7 +37,7 @@ def predict() -> Tuple[List[YoloBoxes], List[Confidences], List[ImageId]]:
     )
     box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key="test_hm", best_watcher=BestWatcher(mode="min")
+        out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
     )
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
     predictor = Predictor(

@@ -28,7 +28,7 @@ def _collate_fn(batch: List[TrainSample],) -> Tuple[ImageBatch, List[ImageId]]:
 
 
 def evaluate(limit:int=100) -> None:
-    backbone = EfficientNetBackbone(3, out_channels=config.channels)
+    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
     model = CenterNetV1(
         channels=config.channels,
         backbone=backbone,
@@ -38,7 +38,7 @@ def evaluate(limit:int=100) -> None:
         box_depth=config.box_depth,
     )
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key="test_hm", best_watcher=BestWatcher(mode="min")
+        out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
     )
     box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
     dataset = Subset(WheatDataset(

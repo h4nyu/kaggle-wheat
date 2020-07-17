@@ -70,7 +70,7 @@ def train(epochs: int) -> None:
         box_depth=config.box_depth,
     )
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key="score", best_watcher=BestWatcher(mode="max")
+        out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
     )
     box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
     criterion = Criterion(
