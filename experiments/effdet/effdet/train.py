@@ -60,8 +60,8 @@ def train(epochs: int) -> None:
         collate_fn=collate_fn,
         num_workers=config.num_workers,
     )
-    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
-    anchors = Anchors(size=config.anchor_size, ratios=config.anchor_ratios)
+    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels, pretrained=config.pretrained)
+    anchors = Anchors(size=config.anchor_size, ratios=config.anchor_ratios, scales=config.anchor_scales)
     model = EfficientDet(
         num_classes=1, channels=config.channels, backbone=backbone, anchors=anchors, out_ids=config.out_ids
     )
@@ -69,10 +69,10 @@ def train(epochs: int) -> None:
         out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
     )
     box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
-    criterion = Criterion()
+    criterion = Criterion(label_weight=config.label_weight)
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
-    to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold,)
+    to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold, limit=config.box_limit)
     Trainer(
         model=model,
         train_loader=train_loader,
