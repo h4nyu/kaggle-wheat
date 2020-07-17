@@ -8,7 +8,7 @@ annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
 n_splits = 5
 fold_idx = 0
-lr = 1e-4
+lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 max_size = 512
@@ -20,7 +20,7 @@ depth = 1
 out_idx: PyramidIdx = 4
 channels = 128
 
-sigma = 1.0
+sigma = 5.0
 heatmap_weight = 1.0
 box_weight = 40.0
 iou_threshold = 0.5
