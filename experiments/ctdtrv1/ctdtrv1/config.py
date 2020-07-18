@@ -17,10 +17,12 @@ max_size = 512
 batch_size = 11
 num_workers = 8
 
+# model
 effdet_id:Phi = 4
 depth = 1
 out_idx: PyramidIdx = 5
 channels = 128
+pretrained = True
 
 sigma = 5.0
 heatmap_weight = 1.0

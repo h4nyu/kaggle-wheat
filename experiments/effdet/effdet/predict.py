@@ -1,11 +1,11 @@
 from typing import List, Tuple
 from object_detection.entities import YoloBoxes, Confidences, ImageId
-from object_detection.models.centernetv1 import (
+from object_detection.models.efficientdet import (
     Predictor,
     prediction_collate_fn,
-    BoxMerge,
-    CenterNetV1,
+    EfficientDet,
     ToBoxes,
+    Anchors,
 )
 from torch.utils.data import DataLoader
 from object_detection.models.backbones.effnet import EfficientNetBackbone

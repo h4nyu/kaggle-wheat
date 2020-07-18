@@ -60,7 +60,7 @@ def train(epochs: int) -> None:
         collate_fn=collate_fn,
         num_workers=config.num_workers,
     )
-    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
+    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels, pretrained=config.pretrained)
     model = CenterNetV1(
         channels=config.channels,
         backbone=backbone,

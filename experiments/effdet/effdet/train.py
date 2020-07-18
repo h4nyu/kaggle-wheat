@@ -20,6 +20,9 @@ from object_detection.models.efficientdet import (
     Visualize,
     ToBoxes,
     Anchors,
+    SizeLoss,
+    PosLoss,
+    LabelLoss,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
@@ -69,10 +72,15 @@ def train(epochs: int) -> None:
         out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
     )
     box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
-    criterion = Criterion(label_weight=config.label_weight)
+    criterion = Criterion(
+        label_weight=config.label_weight,
+        pos_loss=PosLoss(iou_threshold=config.pos_threshold),
+        size_loss=SizeLoss(iou_threshold=config.size_threshold),
+        label_loss=LabelLoss(iou_thresholds=config.label_thresholds)
+    )
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
-    to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold, limit=config.box_limit)
+    to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold)
     Trainer(
         model=model,
         train_loader=train_loader,
