@@ -35,9 +35,13 @@ def predict() -> Tuple[List[YoloBoxes], List[Confidences], List[ImageId]]:
         batch_size=config.batch_size,
         shuffle=True,
     )
-    box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
+    box_merge = BoxMerge(
+        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
+    )
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
+        out_dir=config.out_dir,
+        key=config.metric[0],
+        best_watcher=BestWatcher(mode=config.metric[1]),
     )
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
     predictor = Predictor(

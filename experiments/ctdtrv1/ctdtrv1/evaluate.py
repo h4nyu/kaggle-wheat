@@ -27,7 +27,7 @@ def _collate_fn(batch: List[TrainSample],) -> Tuple[ImageBatch, List[ImageId]]:
     return ImageBatch(torch.stack(images)), id_batch
 
 
-def evaluate(limit:int=100) -> None:
+def evaluate(limit: int = 100) -> None:
     backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
     model = CenterNetV1(
         channels=config.channels,
@@ -38,20 +38,27 @@ def evaluate(limit:int=100) -> None:
         box_depth=config.box_depth,
     )
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
+        out_dir=config.out_dir,
+        key=config.metric[0],
+        best_watcher=BestWatcher(mode=config.metric[1]),
     )
-    box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
-    dataset = Subset(WheatDataset(
-        annot_file=config.annot_file,
-        image_dir=config.train_image_dir,
-        max_size=config.max_size,
-        mode="test",
-    ), list(range(limit)))
+    box_merge = BoxMerge(
+        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
+    )
+    dataset = Subset(
+        WheatDataset(
+            annot_file=config.annot_file,
+            image_dir=config.train_image_dir,
+            max_size=config.max_size,
+            mode="test",
+        ),
+        list(range(limit)),
+    )
     to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
     data_loader = DataLoader(
         dataset=dataset,
         collate_fn=_collate_fn,
-        batch_size=config.batch_size*2,
+        batch_size=config.batch_size * 2,
         shuffle=False,
     )
     predictor = Predictor(
@@ -65,9 +72,7 @@ def evaluate(limit:int=100) -> None:
     boxes_list, confs_list, ids = predictor()
     gt_boxes_list = [dataset[i][2] for i in range(len(dataset))]
     get_score = MeanPrecition()
-    score = np.mean([
-        get_score(x, y.to(x.device))
-        for x, y
-        in zip(boxes_list, gt_boxes_list)
-    ])
+    score = np.mean(
+        [get_score(x, y.to(x.device)) for x, y in zip(boxes_list, gt_boxes_list)]
+    )
     print(score)

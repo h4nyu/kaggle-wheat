@@ -20,6 +20,7 @@ from object_detection.models.centernetv1 import (
     ToBoxes,
     Anchors,
     BoxMerge,
+    MkMaps,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
@@ -60,7 +61,9 @@ def train(epochs: int) -> None:
         collate_fn=collate_fn,
         num_workers=config.num_workers,
     )
-    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels, pretrained=config.pretrained)
+    backbone = EfficientNetBackbone(
+        config.effdet_id, out_channels=config.channels, pretrained=config.pretrained
+    )
     model = CenterNetV1(
         channels=config.channels,
         backbone=backbone,
@@ -70,13 +73,17 @@ def train(epochs: int) -> None:
         box_depth=config.box_depth,
     )
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
+        out_dir=config.out_dir,
+        key=config.metric[0],
+        best_watcher=BestWatcher(mode=config.metric[1]),
     )
-    box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
+    box_merge = BoxMerge(
+        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
+    )
     criterion = Criterion(
         heatmap_weight=config.heatmap_weight,
         box_weight=config.box_weight,
-        sigma=config.sigma,
+        mk_maps=MkMaps(sigma=config.sigma, mode=config.map_mode,),
     )
 
     visualize = Visualize(config.out_dir, "centernet", limit=5, show_probs=True)

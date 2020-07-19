@@ -63,20 +63,34 @@ def train(epochs: int) -> None:
         collate_fn=collate_fn,
         num_workers=config.num_workers,
     )
-    backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels, pretrained=config.pretrained)
-    anchors = Anchors(size=config.anchor_size, ratios=config.anchor_ratios, scales=config.anchor_scales)
+    backbone = EfficientNetBackbone(
+        config.effdet_id, out_channels=config.channels, pretrained=config.pretrained
+    )
+    anchors = Anchors(
+        size=config.anchor_size,
+        ratios=config.anchor_ratios,
+        scales=config.anchor_scales,
+    )
     model = EfficientDet(
-        num_classes=1, channels=config.channels, backbone=backbone, anchors=anchors, out_ids=config.out_ids
+        num_classes=1,
+        channels=config.channels,
+        backbone=backbone,
+        anchors=anchors,
+        out_ids=config.out_ids,
     )
     model_loader = ModelLoader(
-        out_dir=config.out_dir, key=config.metric[0], best_watcher=BestWatcher(mode=config.metric[1])
+        out_dir=config.out_dir,
+        key=config.metric[0],
+        best_watcher=BestWatcher(mode=config.metric[1]),
     )
-    box_merge = BoxMerge(iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold)
+    box_merge = BoxMerge(
+        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
+    )
     criterion = Criterion(
         label_weight=config.label_weight,
         pos_loss=PosLoss(iou_threshold=config.pos_threshold),
         size_loss=SizeLoss(iou_threshold=config.size_threshold),
-        label_loss=LabelLoss(iou_thresholds=config.label_thresholds)
+        label_loss=LabelLoss(iou_thresholds=config.label_thresholds),
     )
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)

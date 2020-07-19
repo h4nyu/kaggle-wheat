@@ -10,36 +10,36 @@ annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
 n_splits = 10
 fold_idx = 0
-lr = 1e-4
+lr = 5e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
-metric:Tuple[str, Literal['max', 'min']] = ("score", "max")
+metric: Tuple[str, Literal["max", "min"]] = ("score", "max")
 max_size = 512
-batch_size = 10
+batch_size = 11
 num_workers = 8
 
 ## model
-effdet_id:Phi = 4
-out_ids: List[PyramidIdx] = [5,6]
-channels = 64
-pretrained=True
+effdet_id: Phi = 4
+out_ids: List[PyramidIdx] = [6, 7]
+channels = 128
+pretrained = True
 
 ## criterion
 label_weight = 2.0
-box_iou_thresold = 0.5
-pos_threshold = 0.5
-size_threshold = 0.5
-label_thresholds = (0.4, 0.5)
+pos_threshold = 0.4
+size_threshold = 0.4
+#  label_thresholds = (0.4, 0.4)
+label_thresholds = (0.4, 0.4)
 
 ## anchor
-anchor_ratios = [0.33, 1.0, 3.0]
-anchor_scales = [1.0, 2.0, 3.0]
+anchor_ratios = [0.5, 1.0, 2]
+anchor_scales = [0.5, 1.0, 2]
 anchor_size = 1
 
 ## ToBoxes
 confidence_threshold = 0.5
 
 ## BoxMerge
-iou_threshold = 0.50
+iou_threshold = 0.40
 final_threshold = 0.0
 
 out_dir = f"/kaggle/input/models/effdet-effdet_id-{effdet_id}-anchor_size-{anchor_size}-out_ids-{len(out_ids)}-channels-{channels}-max_size-{max_size}/{fold_idx}"
