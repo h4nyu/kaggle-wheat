@@ -16,13 +16,13 @@ lr = 5e-5
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("test_loss", "min")
 max_size = 512
-batch_size = 10
+batch_size = 9
 num_workers = 8
 
 # model
-effdet_id: Phi = 4
+effdet_id: Phi = 5
 depth = 1
-out_idx: PyramidIdx = 4
+out_idx: PyramidIdx = 5
 channels = 128
 pretrained = True
 

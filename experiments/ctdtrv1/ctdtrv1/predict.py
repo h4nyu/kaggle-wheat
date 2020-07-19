@@ -33,7 +33,7 @@ def predict() -> Tuple[List[YoloBoxes], List[Confidences], List[ImageId]]:
         dataset=dataset,
         collate_fn=prediction_collate_fn,
         batch_size=config.batch_size,
-        shuffle=True,
+        shuffle=False,
     )
     box_merge = BoxMerge(
         iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
