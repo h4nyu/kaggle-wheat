@@ -4,17 +4,16 @@ from . import config
 from typing import List, Tuple, Any
 from torch.utils.data import DataLoader, Subset
 from object_detection.models.backbones.effnet import EfficientNetBackbone
-from object_detection.models.centernetv1 import (
-    Predictor,
-    BoxMerge,
-)
 from app.dataset.wheat import WheatDataset
 from object_detection.entities import TrainSample, ImageBatch, ImageId
 from object_detection.model_loader import ModelLoader, BestWatcher
 from object_detection.metrics import MeanPrecition
-from object_detection.models.centernetv1 import (
-    CenterNetV1,
+from object_detection.models.box_merge import BoxMerge
+from object_detection.models.efficientdet import (
+    EfficientDet,
+    Predictor,
     ToBoxes,
+    Anchors,
 )
 
 
@@ -29,13 +28,17 @@ def _collate_fn(batch: List[TrainSample],) -> Tuple[ImageBatch, List[ImageId]]:
 
 def evaluate(limit: int = 100) -> None:
     backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
-    model = CenterNetV1(
+    anchors = Anchors(
+        size=config.anchor_size,
+        ratios=config.anchor_ratios,
+        scales=config.anchor_scales,
+    )
+    model = EfficientDet(
+        num_classes=1,
         channels=config.channels,
         backbone=backbone,
-        out_idx=config.out_idx,
-        fpn_depth=config.fpn_depth,
-        hm_depth=config.hm_depth,
-        box_depth=config.box_depth,
+        anchors=anchors,
+        out_ids=config.out_ids,
     )
     model_loader = ModelLoader(
         out_dir=config.out_dir,
@@ -54,7 +57,7 @@ def evaluate(limit: int = 100) -> None:
         ),
         list(range(limit)),
     )
-    to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
+    to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold)
     data_loader = DataLoader(
         dataset=dataset,
         collate_fn=_collate_fn,

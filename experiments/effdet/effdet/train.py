@@ -11,16 +11,18 @@ from app.dataset.wheat import WheatDataset
 from torch.utils.data import DataLoader, Subset, ConcatDataset
 from object_detection.metrics import MeanPrecition
 from object_detection.models.backbones.effnet import EfficientNetBackbone
-from object_detection.models.centernetv1 import (
+from object_detection.models.box_merge import BoxMerge
+from object_detection.models.efficientdet import (
     collate_fn,
-    CenterNetV1,
-    Visualize,
+    EfficientDet,
     Trainer,
     Criterion,
+    Visualize,
     ToBoxes,
     Anchors,
-    BoxMerge,
-    MkMaps,
+    SizeLoss,
+    PosLoss,
+    LabelLoss,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
@@ -64,13 +66,17 @@ def train(epochs: int) -> None:
     backbone = EfficientNetBackbone(
         config.effdet_id, out_channels=config.channels, pretrained=config.pretrained
     )
-    model = CenterNetV1(
+    anchors = Anchors(
+        size=config.anchor_size,
+        ratios=config.anchor_ratios,
+        scales=config.anchor_scales,
+    )
+    model = EfficientDet(
+        num_classes=1,
         channels=config.channels,
         backbone=backbone,
-        out_idx=config.out_idx,
-        fpn_depth=config.fpn_depth,
-        hm_depth=config.hm_depth,
-        box_depth=config.box_depth,
+        anchors=anchors,
+        out_ids=config.out_ids,
     )
     model_loader = ModelLoader(
         out_dir=config.out_dir,
@@ -81,14 +87,14 @@ def train(epochs: int) -> None:
         iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
     )
     criterion = Criterion(
-        heatmap_weight=config.heatmap_weight,
-        box_weight=config.box_weight,
-        mk_maps=MkMaps(sigma=config.sigma, mode=config.map_mode,),
+        label_weight=config.label_weight,
+        pos_loss=PosLoss(iou_threshold=config.pos_threshold),
+        size_loss=SizeLoss(iou_threshold=config.size_threshold),
+        label_loss=LabelLoss(iou_thresholds=config.label_thresholds),
     )
-
-    visualize = Visualize(config.out_dir, "centernet", limit=5, show_probs=True)
+    visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
-    to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
+    to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold)
     Trainer(
         model=model,
         train_loader=train_loader,
