@@ -25,10 +25,10 @@ channels = 128
 sigma = 5.0
 heatmap_weight = 1.0
 box_weight = 1.0
-iou_threshold = 0.50
+iou_threshold = 0.40
 use_peak = True
 
-confidence_threshold = 0.32
+confidence_threshold = 0.37
 final_threshold = 0.0
 
 fpn_depth = 1
