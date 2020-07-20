@@ -27,7 +27,6 @@ pretrained = True
 label_weight = 2.0
 pos_threshold = 0.4
 size_threshold = 0.4
-#  label_thresholds = (0.4, 0.4)
 label_thresholds = (0.4, 0.4)
 
 ## anchor

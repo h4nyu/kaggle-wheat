@@ -12,17 +12,19 @@ annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
 n_splits = 10
 fold_idx = 0
-lr = 5e-5
+lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("test_loss", "min")
 max_size = 512
-batch_size = 10
+batch_size = 8
 num_workers = 8
 
 # model
 effdet_id: Phi = 4
-depth = 1
-out_idx: PyramidIdx = 5
+fpn_depth = 1
+hm_depth = 1
+box_depth = 1
+out_idx: PyramidIdx = 4
 channels = 128
 pretrained = True
 
@@ -30,22 +32,15 @@ pretrained = True
 sigma = 0.25
 map_mode: MkMapMode = "fill"
 heatmap_weight = 1.0
-box_weight = 1.0
-iou_threshold = 0.40
-use_peak = True
-box_weight = 10.0
+box_weight = 5.0
 
 
 # ToBoxes
-confidence_threshold = 0.37
+confidence_threshold = 0.49
 use_peak = True
-final_threshold = 0.0
 
 # box merge
-iou_threshold = 0.35
-
-fpn_depth = 1
-hm_depth = 1
-box_depth = 1
+iou_threshold = 0.50
+final_threshold = 0.0
 
 out_dir = f"/kaggle/input/models/ctdtv1-effdet_id-{effdet_id}-fpn_depth-{fpn_depth}-hm_depth-{hm_depth}-box_depth-{box_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
