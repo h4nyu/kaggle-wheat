@@ -71,6 +71,7 @@ def train(epochs: int) -> None:
         fpn_depth=config.fpn_depth,
         hm_depth=config.hm_depth,
         box_depth=config.box_depth,
+        anchors=Anchors(size=config.anchor_size),
     )
     model_loader = ModelLoader(
         out_dir=config.out_dir,
