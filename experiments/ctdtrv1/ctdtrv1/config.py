@@ -15,13 +15,13 @@ fold_idx = 0
 lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("test_loss", "min")
-max_size = 512
-batch_size = 18
+max_size = 1024
+batch_size = 4
 num_workers = 8
 
 # model
 effdet_id: Phi = 3
-out_idx: PyramidIdx = 6
+out_idx: PyramidIdx = 5
 fpn_depth = 1
 hm_depth = 2
 box_depth = 2
@@ -30,7 +30,7 @@ pretrained = True
 anchor_size=2
 
 # heatmap
-sigma = 0.6
+sigma = 0.25
 map_mode: MkMapMode = "fill"
 heatmap_weight = 1.0
 box_weight = 40.0

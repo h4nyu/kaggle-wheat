@@ -93,7 +93,7 @@ def train(epochs: int) -> None:
         label_loss=LabelLoss(iou_thresholds=config.label_thresholds),
     )
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr,)
     to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold)
     Trainer(
         model=model,
