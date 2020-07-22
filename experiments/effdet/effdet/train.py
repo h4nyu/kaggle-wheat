@@ -67,7 +67,6 @@ def train(epochs: int) -> None:
         config.effdet_id, out_channels=config.channels, pretrained=config.pretrained
     )
     anchors = Anchors(
-        size=config.anchor_size,
         ratios=config.anchor_ratios,
         scales=config.anchor_scales,
     )

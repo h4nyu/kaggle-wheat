@@ -32,7 +32,6 @@ label_thresholds = (0.2, 0.3)
 ## anchor
 anchor_ratios = [1.0]
 anchor_scales = [2.0]
-anchor_size = 1
 
 ## ToBoxes
 confidence_threshold = 0.5
@@ -41,4 +40,4 @@ confidence_threshold = 0.5
 iou_threshold = 0.40
 final_threshold = 0.0
 
-out_dir = f"/kaggle/input/models/effdet-effdet_id-{effdet_id}-anchor_size-{anchor_size}-out_ids-{len(out_ids)}-channels-{channels}-max_size-{max_size}/{fold_idx}"
+out_dir = f"/kaggle/input/models/effdet-effdet_id-{effdet_id}-out_ids-{len(out_ids)}-channels-{channels}-max_size-{max_size}/{fold_idx}"
