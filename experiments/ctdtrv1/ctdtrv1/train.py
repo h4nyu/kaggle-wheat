@@ -20,7 +20,6 @@ from object_detection.models.centernetv1 import (
     ToBoxes,
     Anchors,
     BoxMerge,
-    MkMaps,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
@@ -84,7 +83,7 @@ def train(epochs: int) -> None:
     criterion = Criterion(
         heatmap_weight=config.heatmap_weight,
         box_weight=config.box_weight,
-        mk_maps=MkMaps(sigma=config.sigma, mode=config.map_mode,),
+        mkmaps=config.mkmaps
     )
 
     visualize = Visualize(config.out_dir, "centernet", limit=5, show_probs=True)

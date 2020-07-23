@@ -15,6 +15,7 @@ from object_detection.metrics import MeanPrecition
 from object_detection.models.centernetv1 import (
     CenterNetV1,
     ToBoxes,
+    Anchors,
 )
 
 
@@ -36,6 +37,7 @@ def evaluate(limit: int = 100) -> None:
         fpn_depth=config.fpn_depth,
         hm_depth=config.hm_depth,
         box_depth=config.box_depth,
+        anchors=Anchors(size=config.anchor_size),
     )
     model_loader = ModelLoader(
         out_dir=config.out_dir,
