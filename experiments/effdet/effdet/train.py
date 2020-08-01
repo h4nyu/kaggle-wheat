@@ -66,10 +66,7 @@ def train(epochs: int) -> None:
     backbone = EfficientNetBackbone(
         config.effdet_id, out_channels=config.channels, pretrained=config.pretrained
     )
-    anchors = Anchors(
-        ratios=config.anchor_ratios,
-        scales=config.anchor_scales,
-    )
+    anchors = Anchors(ratios=config.anchor_ratios, scales=config.anchor_scales,)
     model = EfficientDet(
         num_classes=1,
         channels=config.channels,

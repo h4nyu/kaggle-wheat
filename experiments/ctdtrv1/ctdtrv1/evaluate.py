@@ -4,10 +4,7 @@ from . import config
 from typing import List, Tuple, Any
 from torch.utils.data import DataLoader, Subset
 from object_detection.models.backbones.effnet import EfficientNetBackbone
-from object_detection.models.centernetv1 import (
-    Predictor,
-    BoxMerge,
-)
+from object_detection.models.centernetv1 import Predictor
 from app.dataset.wheat import WheatDataset
 from object_detection.entities import TrainSample, ImageBatch, ImageId
 from object_detection.model_loader import ModelLoader, BestWatcher
@@ -44,9 +41,6 @@ def evaluate(limit: int = 100) -> None:
         key=config.metric[0],
         best_watcher=BestWatcher(mode=config.metric[1]),
     )
-    box_merge = BoxMerge(
-        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
-    )
     dataset = Subset(
         WheatDataset(
             annot_file=config.annot_file,
@@ -68,7 +62,6 @@ def evaluate(limit: int = 100) -> None:
         loader=data_loader,
         model_loader=model_loader,
         device=config.device,
-        box_merge=box_merge,
         to_boxes=to_boxes,
     )
     boxes_list, confs_list, ids = predictor()

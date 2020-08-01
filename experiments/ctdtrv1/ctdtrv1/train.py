@@ -1,29 +1,41 @@
 import torch
 import numpy as np
-import typing as t
 import matplotlib.pyplot as plt
 from cytoolz.curried import groupby, valmap, pipe, unique, map, reduce
 from pathlib import Path
 
+from typing import Any
 from logging import getLogger, FileHandler
 from sklearn.model_selection import StratifiedKFold
 from app.dataset.wheat import WheatDataset
 from torch.utils.data import DataLoader, Subset, ConcatDataset
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from object_detection.metrics import MeanPrecition
 from object_detection.models.backbones.effnet import EfficientNetBackbone
 from object_detection.models.centernetv1 import (
     collate_fn,
     CenterNetV1,
     Visualize,
-    Trainer,
+    Trainer as _Trainer,
     Criterion,
     ToBoxes,
     Anchors,
-    BoxMerge,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
 from . import config
+
+
+class Trainer(_Trainer):
+    def __init__(self, *args:Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.lr_scheduler = CosineAnnealingLR(
+            optimizer=self.optimizer, T_max=config.T_max, eta_min=config.eta_min
+        )
+
+    def train_one_epoch(self) -> None:
+        super().train_one_epoch()
+        self.lr_scheduler.step()
 
 
 def train(epochs: int) -> None:
@@ -77,18 +89,14 @@ def train(epochs: int) -> None:
         key=config.metric[0],
         best_watcher=BestWatcher(mode=config.metric[1]),
     )
-    box_merge = BoxMerge(
-        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
-    )
     criterion = Criterion(
         heatmap_weight=config.heatmap_weight,
         box_weight=config.box_weight,
-        mkmaps=config.mkmaps
+        mkmaps=config.mkmaps,
     )
 
     visualize = Visualize(config.out_dir, "centernet", limit=5, show_probs=True)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr,)
-    to_boxes = ToBoxes(threshold=config.confidence_threshold, use_peak=config.use_peak,)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr,)
     Trainer(
         model=model,
         train_loader=train_loader,
@@ -99,6 +107,5 @@ def train(epochs: int) -> None:
         device=config.device,
         criterion=criterion,
         get_score=MeanPrecition(),
-        to_boxes=to_boxes,
-        box_merge=box_merge,
+        to_boxes=config.to_boxes,
     )(epochs)

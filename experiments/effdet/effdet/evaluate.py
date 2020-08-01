@@ -28,10 +28,7 @@ def _collate_fn(batch: List[TrainSample],) -> Tuple[ImageBatch, List[ImageId]]:
 
 def evaluate(limit: int = 100) -> None:
     backbone = EfficientNetBackbone(config.effdet_id, out_channels=config.channels)
-    anchors = Anchors(
-        ratios=config.anchor_ratios,
-        scales=config.anchor_scales,
-    )
+    anchors = Anchors(ratios=config.anchor_ratios, scales=config.anchor_scales,)
     model = EfficientDet(
         num_classes=1,
         channels=config.channels,

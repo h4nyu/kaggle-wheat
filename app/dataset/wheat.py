@@ -74,25 +74,49 @@ class WheatDataset(Dataset):
         self.cache: t.Dict[str, t.Any] = dict()
         self.image_dir = Path(image_dir)
 
-        bbox_params = {"format": "coco", "label_fields": ["labels"]}
-        self.pre_transforms = A.Compose(
-            [A.LongestMaxSize(max_size=max_size),], bbox_params=bbox_params,
-        )
+        bbox_params = {
+            "format": "coco",
+            "label_fields": ["labels"],
+            "min_area": 0,
+            "min_visibility": 0,
+        }
+        self.pre_transforms = A.Compose([], bbox_params=bbox_params,)
         self.train_transforms = A.Compose(
             [
-                A.RandomResizedCrop(
-                    p=0.5, height=max_size, width=max_size, scale=(0.9, 1.1)
+                A.RandomSizedCrop(
+                    min_max_height=(800, 800), height=1024, width=1024, p=0.5
                 ),
+                #  A.RandomResizedCrop(
+                #      p=0.5, height=max_size, width=max_size, scale=(0.9, 1.1)
+                #  ),
+                A.OneOf(
+                    [
+                        A.HueSaturationValue(
+                            hue_shift_limit=0.2,
+                            sat_shift_limit=0.2,
+                            val_shift_limit=0.2,
+                            p=0.9,
+                        ),
+                        A.RandomBrightnessContrast(
+                            brightness_limit=0.2, contrast_limit=0.2, p=0.9
+                        ),
+                    ],
+                    p=0.9,
+                ),
+                A.ToGray(p=0.01),
                 A.VerticalFlip(p=0.5),
-                A.RandomRotate90(p=0.5),
                 A.HorizontalFlip(p=0.5),
-                A.RGBShift(p=0.5),
-                A.RandomBrightnessContrast(p=0.5),
+                A.Cutout(
+                    num_holes=8, max_h_size=64, max_w_size=64, fill_value=0, p=0.5
+                ),
             ],
             bbox_params=bbox_params,
         )
 
-        self.post_transforms = A.Compose([ToTensorV2(),])
+        self.post_transforms = A.Compose(
+            [A.LongestMaxSize(max_size=max_size), ToTensorV2(),],
+            bbox_params=bbox_params,
+        )
 
     def __len__(self) -> int:
         return len(self.rows)

@@ -3,7 +3,6 @@ from object_detection.entities import YoloBoxes, Confidences, ImageId
 from object_detection.models.centernetv1 import (
     Predictor,
     prediction_collate_fn,
-    BoxMerge,
     CenterNetV1,
     ToBoxes,
 )
@@ -35,9 +34,6 @@ def predict() -> Tuple[List[YoloBoxes], List[Confidences], List[ImageId]]:
         batch_size=config.batch_size,
         shuffle=False,
     )
-    box_merge = BoxMerge(
-        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
-    )
     model_loader = ModelLoader(
         out_dir=config.out_dir,
         key=config.metric[0],
@@ -49,7 +45,6 @@ def predict() -> Tuple[List[YoloBoxes], List[Confidences], List[ImageId]]:
         loader=data_loader,
         model_loader=model_loader,
         device=config.device,
-        box_merge=box_merge,
         to_boxes=to_boxes,
     )
     return predictor()
