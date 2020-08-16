@@ -2,6 +2,7 @@ import typing as t
 import numpy as np
 import pandas as pd
 import torch
+import cv2
 import torchvision
 import PIL
 import matplotlib.pyplot as plt
@@ -89,14 +90,10 @@ class WheatDataset(Dataset):
                 #  A.RandomResizedCrop(
                 #      p=0.5, height=max_size, width=max_size, scale=(0.9, 1.1)
                 #  ),
-                A.ShiftScaleRotate(p=0.9),
-                A.OneOf(
-                    [
-                        A.HorizontalFlip(p=0.9),
-                        A.RandomRotate90(p=0.9),
-                    ],
-                    p=0.9,
-                ),
+                A.ShiftScaleRotate(p=0.5, border_mode=cv2.BORDER_CONSTANT, rotate_limit=5),
+                A.HorizontalFlip(p=0.5),
+                A.VerticalFlip(p=0.5),
+                A.RandomRotate90(p=0.5),
                 A.OneOf(
                     [
                         A.HueSaturationValue(
