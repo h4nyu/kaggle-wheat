@@ -13,51 +13,20 @@ from torch.utils.data import DataLoader, Subset, ConcatDataset
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from object_detection.metrics import MeanPrecition
 from object_detection.models.backbones.effnet import EfficientNetBackbone
-from object_detection.models.centernetv1 import (
+from object_detection.models.centernet import (
     collate_fn,
-    CenterNetV1,
+    CenterNet,
     Visualize,
     Trainer as _Trainer,
-    Criterion as _Criterion,
+    Criterion,
     ToBoxes,
-    Anchors,
-    Heatmap,
 )
+from object_detection.models.mkmaps import MkCenterBoxMaps
 from object_detection.model_loader import ModelLoader, BestWatcher
 from object_detection.models.losses import DIoU
 from object_detection import boxmap_to_boxes, yolo_to_pascal, BoxMap, YoloBoxes
 from app.preprocess import kfold
-from . import config
-
-
-class BoxLoss:
-    def __init__(self, threshold: float = 0.5) -> None:
-        self.diou = DIoU()
-        self.threshold = threshold
-
-    def __call__(
-        self, anchormap: BoxMap, diffmap: BoxMap, gt_boxes: YoloBoxes, heatmap: Heatmap,
-    ) -> Tensor:
-        device = diffmap.device
-        box_diffs = boxmap_to_boxes(diffmap)
-        anchors = boxmap_to_boxes(anchormap)
-        pred_boxes = YoloBoxes(anchors + box_diffs)
-        loss_matrix = self.diou(
-            yolo_to_pascal(pred_boxes, (1, 1),), yolo_to_pascal(gt_boxes, (1, 1),)
-        )
-        loss_min, match_indices = torch.min(loss_matrix, dim=1)
-        positive_indices = loss_min < self.threshold
-        if positive_indices.sum() == 0:
-            return torch.tensor(0.0).to(device)
-        loss = loss_matrix[positive_indices].mean()
-        print(loss)
-        return loss
-
-
-class Criterion(_Criterion):
-    def __init__(self, *args: Any, **kwargs: Any,) -> None:
-        super().__init__(*args, **kwargs)
-        self.box_loss: Any = BoxLoss()
+from experiments.centernet import config
 
 
 class Trainer(_Trainer):
@@ -109,14 +78,11 @@ def train(epochs: int) -> None:
     backbone = EfficientNetBackbone(
         config.effdet_id, out_channels=config.channels, pretrained=config.pretrained
     )
-    model = CenterNetV1(
+    model = CenterNet(
         channels=config.channels,
         backbone=backbone,
         out_idx=config.out_idx,
-        fpn_depth=config.fpn_depth,
-        hm_depth=config.hm_depth,
-        box_depth=config.box_depth,
-        anchors=Anchors(size=config.anchor_size),
+        depth=config.depth,
     )
     model_loader = ModelLoader(
         out_dir=config.out_dir,
@@ -126,7 +92,8 @@ def train(epochs: int) -> None:
     criterion = Criterion(
         heatmap_weight=config.heatmap_weight,
         box_weight=config.box_weight,
-        mkmaps=config.mkmaps,
+        mk_hmmaps=config.mkmaps,
+        mk_boxmaps=MkCenterBoxMaps(),
     )
 
     visualize = Visualize(config.out_dir, "centernet", limit=5, show_probs=True)
@@ -143,3 +110,7 @@ def train(epochs: int) -> None:
         get_score=MeanPrecition(),
         to_boxes=config.to_boxes,
     )(epochs)
+
+
+if __name__ == "__main__":
+    train(1000)

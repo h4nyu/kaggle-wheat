@@ -83,12 +83,20 @@ class WheatDataset(Dataset):
         self.pre_transforms = A.Compose([], bbox_params=bbox_params,)
         self.train_transforms = A.Compose(
             [
-                A.RandomSizedCrop(
-                    min_max_height=(800, 800), height=1024, width=1024, p=0.5
-                ),
+                #  A.RandomSizedCrop(
+                #      min_max_height=(800, 800), height=1024, width=1024, p=0.5
+                #  ),
                 #  A.RandomResizedCrop(
                 #      p=0.5, height=max_size, width=max_size, scale=(0.9, 1.1)
                 #  ),
+                A.ShiftScaleRotate(p=0.9),
+                A.OneOf(
+                    [
+                        A.HorizontalFlip(p=0.9),
+                        A.RandomRotate90(p=0.9),
+                    ],
+                    p=0.9,
+                ),
                 A.OneOf(
                     [
                         A.HueSaturationValue(
@@ -97,15 +105,18 @@ class WheatDataset(Dataset):
                             val_shift_limit=0.2,
                             p=0.9,
                         ),
+                        A.RGBShift(p=0.9),
                         A.RandomBrightnessContrast(
                             brightness_limit=0.2, contrast_limit=0.2, p=0.9
                         ),
                     ],
                     p=0.9,
                 ),
+                A.RandomGamma(p=0.5),
+                A.CLAHE(p=0.5),
                 A.ToGray(p=0.01),
-                A.VerticalFlip(p=0.5),
-                A.HorizontalFlip(p=0.5),
+                A.OneOf([A.Blur(p=0.5), A.MotionBlur(p=0.5),], p=0.5,),
+                A.GaussNoise(p=0.5),
                 A.Cutout(
                     num_holes=8, max_h_size=64, max_w_size=64, fill_value=0, p=0.5
                 ),

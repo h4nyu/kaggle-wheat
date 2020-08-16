@@ -1,11 +1,8 @@
 from typing import List, Tuple
 from typing_extensions import Literal
 from object_detection.entities import PyramidIdx
-from object_detection.models.centernetv1 import (
-    MkCrossMaps,
-    MkGaussianMaps,
-    ToBoxes,
-)
+from object_detection.models.centernet import ToBoxes
+from object_detection.models.mkmaps import MkGaussianMaps
 from object_detection.models.backbones.effnet import Phi
 
 import torch
@@ -16,11 +13,11 @@ annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
 n_splits = 5
 fold_idx = 0
-lr = 1e-4
+lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("score", "max")
 max_size = 512
-batch_size = 11
+batch_size = 12
 num_workers = 8
 
 # lr_scheduler
@@ -30,20 +27,17 @@ eta_min = 1e-6
 # model
 effdet_id: Phi = 3
 out_idx: PyramidIdx = 4
-fpn_depth = 1
-hm_depth = 1
-box_depth = 1
+depth = 1
 channels = 64
 pretrained = True
 anchor_size = 1
 
 # heatmap
-heatmap_weight = 2.0
-box_weight = 1.0
+heatmap_weight = 1.0
+box_weight = 5.0
 
 # ToBoxes
-confidence_threshold = 0.1
-use_peak = True
+confidence_threshold = 0.3
 
 # box merge
 iou_threshold = 0.6
@@ -51,6 +45,6 @@ final_threshold = confidence_threshold
 
 mkmaps = MkGaussianMaps(sigma=0.5, mode="constant")
 
-to_boxes = ToBoxes(threshold=confidence_threshold, use_peak=use_peak, kernel_size=3)
+to_boxes = ToBoxes(threshold=confidence_threshold, kernel_size=3)
 
-out_dir = f"/kaggle/input/models/ctdtv1-effdet_id-{effdet_id}-fpn_depth-{fpn_depth}-hm_depth-{hm_depth}-box_depth-{box_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
+out_dir = f"/kaggle/input/models/ctdt-effdet_id-{effdet_id}-depth-{depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
