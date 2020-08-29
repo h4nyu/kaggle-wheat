@@ -10,6 +10,7 @@ from object_detection.models.backbones.effnet import Phi
 
 import torch
 
+id = "2020-08-29-0"
 test_image_dir = "/kaggle/input/global-wheat-detection/test"
 train_image_dir = "/kaggle/input/global-wheat-detection/train"
 annot_file = "/kaggle/input/global-wheat-detection/train.csv"
@@ -19,8 +20,8 @@ fold_idx = 0
 lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("score", "max")
-max_size = 512
-batch_size = 11
+max_size = 512 * 2
+batch_size = 3
 num_workers = 8
 
 # lr_scheduler
@@ -38,8 +39,8 @@ pretrained = True
 anchor_size = 1
 
 # heatmap
-heatmap_weight = 2.0
-box_weight = 1.0
+heatmap_weight = 1.0
+box_weight = 10.0
 
 # ToBoxes
 confidence_threshold = 0.1
@@ -53,4 +54,4 @@ mkmaps = MkGaussianMaps(sigma=0.5, mode="constant")
 
 to_boxes = ToBoxes(threshold=confidence_threshold, use_peak=use_peak, kernel_size=3)
 
-out_dir = f"/kaggle/input/models/ctdtv1-effdet_id-{effdet_id}-fpn_depth-{fpn_depth}-hm_depth-{hm_depth}-box_depth-{box_depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
+out_dir = f"/kaggle/input/models/{id}/{fold_idx}"
