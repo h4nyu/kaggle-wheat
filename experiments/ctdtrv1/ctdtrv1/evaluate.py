@@ -70,4 +70,3 @@ def evaluate(limit: int = 100) -> None:
     score = np.mean(
         [get_score(x, y.to(x.device)) for x, y in zip(boxes_list, gt_boxes_list)]
     )
-    print(score)

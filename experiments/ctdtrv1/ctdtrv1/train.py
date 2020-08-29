@@ -18,7 +18,7 @@ from object_detection.models.centernetv1 import (
     CenterNetV1,
     Visualize,
     Trainer as _Trainer,
-    Criterion as _Criterion,
+    Criterion,
     ToBoxes,
     Anchors,
     Heatmap,
@@ -30,34 +30,27 @@ from app.preprocess import kfold
 from . import config
 
 
-class BoxLoss:
-    def __init__(self, threshold: float = 0.5) -> None:
-        self.diou = DIoU()
-        self.threshold = threshold
+# class BoxLoss:
+#     def __init__(self, threshold: float = 0.5) -> None:
+#         self.diou = DIoU()
+#         self.threshold = threshold
 
-    def __call__(
-        self, anchormap: BoxMap, diffmap: BoxMap, gt_boxes: YoloBoxes, heatmap: Heatmap,
-    ) -> Tensor:
-        device = diffmap.device
-        box_diffs = boxmap_to_boxes(diffmap)
-        anchors = boxmap_to_boxes(anchormap)
-        pred_boxes = YoloBoxes(anchors + box_diffs)
-        loss_matrix = self.diou(
-            yolo_to_pascal(pred_boxes, (1, 1),), yolo_to_pascal(gt_boxes, (1, 1),)
-        )
-        loss_min, match_indices = torch.min(loss_matrix, dim=1)
-        positive_indices = loss_min < self.threshold
-        if positive_indices.sum() == 0:
-            return torch.tensor(0.0).to(device)
-        loss = loss_matrix[positive_indices].mean()
-        print(loss)
-        return loss
-
-
-class Criterion(_Criterion):
-    def __init__(self, *args: Any, **kwargs: Any,) -> None:
-        super().__init__(*args, **kwargs)
-        self.box_loss: Any = BoxLoss()
+#     def __call__(
+#         self, anchormap: BoxMap, diffmap: BoxMap, gt_boxes: YoloBoxes, heatmap: Heatmap,
+#     ) -> Tensor:
+#         device = diffmap.device
+#         box_diffs = boxmap_to_boxes(diffmap)
+#         anchors = boxmap_to_boxes(anchormap)
+#         pred_boxes = YoloBoxes(anchors + box_diffs)
+#         loss_matrix = self.diou(
+#             yolo_to_pascal(pred_boxes, (1, 1),), yolo_to_pascal(gt_boxes, (1, 1),)
+#         )
+#         loss_min, match_indices = torch.min(loss_matrix, dim=1)
+#         positive_indices = loss_min < self.threshold
+#         if positive_indices.sum() == 0:
+#             return torch.tensor(0.0).to(device)
+#         loss = loss_matrix[positive_indices].mean()
+#         return loss
 
 
 class Trainer(_Trainer):

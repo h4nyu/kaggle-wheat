@@ -16,7 +16,7 @@ annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
 n_splits = 5
 fold_idx = 0
-lr = 1e-4
+lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("score", "max")
 max_size = 512
