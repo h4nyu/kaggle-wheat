@@ -19,6 +19,7 @@ from object_detection.entities import (
     coco_to_yolo,
     Labels,
 )
+from PIL import Image as PILImage
 from albumentations.pytorch.transforms import ToTensorV2
 from skimage.io import imread
 from cytoolz.curried import pipe, groupby, valmap
@@ -55,9 +56,7 @@ def load_lables(
 
 
 def get_img(image_id: ImageId, image_dir: Path) -> t.Any:
-    image_path = f"{image_dir}/{image_id}.jpg"
-    return imread(image_path)
-
+    return np.array(PILImage.open(f"{image_dir}/{image_id}.jpg"))
 
 DEFAULT_TRANSFORM = A.Compose(
     [A.Resize(height=1024, width=1024, p=1.0), ToTensorV2(p=1.0),],

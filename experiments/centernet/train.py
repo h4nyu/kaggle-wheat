@@ -68,7 +68,7 @@ def train(epochs: int) -> None:
     )
     test_loader = DataLoader(
         Subset(test_dataset, test_idx),
-        batch_size=config.batch_size,
+        batch_size=config.batch_size * 2,
         drop_last=False,
         shuffle=False,
         collate_fn=collate_fn,
