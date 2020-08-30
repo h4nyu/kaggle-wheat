@@ -11,8 +11,7 @@ from app.dataset.wheat import WheatDataset
 from torch.utils.data import DataLoader, Subset, ConcatDataset
 from object_detection.metrics import MeanPrecition
 from object_detection.models.backbones.effnet import EfficientNetBackbone
-from object_detection.models.box_merge import BoxMerge
-from object_detection.models.efficientdet import (
+from object_detection.models.effidet import (
     collate_fn,
     EfficientDet,
     Trainer,
@@ -20,13 +19,12 @@ from object_detection.models.efficientdet import (
     Visualize,
     ToBoxes,
     Anchors,
-    SizeLoss,
-    PosLoss,
+    BoxLoss,
     LabelLoss,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
-from . import config
+from experiments.effdet import config
 
 
 def train(epochs: int) -> None:
@@ -79,15 +77,7 @@ def train(epochs: int) -> None:
         key=config.metric[0],
         best_watcher=BestWatcher(mode=config.metric[1]),
     )
-    box_merge = BoxMerge(
-        iou_threshold=config.iou_threshold, confidence_threshold=config.final_threshold
-    )
-    criterion = Criterion(
-        label_weight=config.label_weight,
-        pos_loss=PosLoss(iou_threshold=config.pos_threshold),
-        size_loss=SizeLoss(iou_threshold=config.size_threshold),
-        label_loss=LabelLoss(iou_thresholds=config.label_thresholds),
-    )
+    criterion = Criterion()
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr,)
     to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold)
@@ -102,5 +92,7 @@ def train(epochs: int) -> None:
         criterion=criterion,
         get_score=MeanPrecition(),
         to_boxes=to_boxes,
-        box_merge=box_merge,
     )(epochs)
+
+if __name__ == '__main__':
+   train(1000)

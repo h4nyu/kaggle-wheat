@@ -13,7 +13,7 @@ def test_train_dataset() -> None:
     assert img.dtype == torch.float32
     assert boxes.dtype == torch.float32
 
-    for i in range(10):
+    for i in range(20):
         _, img, boxes, _ = dataset[100]
         _, h, w = img.shape
         plot = DetectionPlot(figsize=(20, 20), w=w, h=h)

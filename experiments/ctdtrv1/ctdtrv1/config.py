@@ -40,7 +40,7 @@ anchor_size = 1
 
 # heatmap
 heatmap_weight = 1.0
-box_weight = 10.0
+box_weight = 20.0
 
 # ToBoxes
 confidence_threshold = 0.1

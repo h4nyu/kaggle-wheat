@@ -87,10 +87,12 @@ class WheatDataset(Dataset):
                 #  A.RandomSizedCrop(
                 #      min_max_height=(800, 800), height=1024, width=1024, p=0.5
                 #  ),
-                #  A.RandomResizedCrop(
-                #      p=0.5, height=max_size, width=max_size, scale=(0.9, 1.1)
-                #  ),
-                A.ShiftScaleRotate(p=0.5, border_mode=cv2.BORDER_CONSTANT, rotate_limit=5),
+                A.RandomResizedCrop(
+                    p=1.0, height=max_size, width=max_size, scale=(0.9, 1.1)
+                ),
+                A.ShiftScaleRotate(
+                    p=0.5, border_mode=cv2.BORDER_CONSTANT, rotate_limit=5
+                ),
                 A.HorizontalFlip(p=0.5),
                 A.VerticalFlip(p=0.5),
                 A.RandomRotate90(p=0.5),
@@ -112,10 +114,15 @@ class WheatDataset(Dataset):
                 A.RandomGamma(p=0.5),
                 A.CLAHE(p=0.5),
                 A.ToGray(p=0.01),
-                A.OneOf([A.Blur(p=0.5), A.MotionBlur(p=0.5),], p=0.5,),
+                A.OneOf(
+                    [A.Blur(), A.MotionBlur(), A.MedianBlur(), A.IAASharpen(),], p=0.5,
+                ),
+                A.IAASharpen(p=0.5),
+                A.IAAEmboss(p=0.5),
                 A.GaussNoise(p=0.5),
+                A.IAAAdditiveGaussianNoise(p=0.5),
                 A.Cutout(
-                    num_holes=8, max_h_size=64, max_w_size=64, fill_value=0, p=0.5
+                    num_holes=16, max_h_size=64, max_w_size=64, fill_value=0, p=0.5
                 ),
             ],
             bbox_params=bbox_params,

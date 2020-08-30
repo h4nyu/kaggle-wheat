@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from object_detection.entities import YoloBoxes, Confidences, ImageId
-from object_detection.models.efficientdet import (
+from object_detection.models.effidet import (
     Predictor,
     prediction_collate_fn,
     EfficientDet,
