@@ -13,7 +13,7 @@ fold_idx = 0
 lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("test_loss", "min")
-max_size = 512
+max_size = 1024
 batch_size = 12
 num_workers = 8
 

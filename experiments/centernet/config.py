@@ -13,11 +13,11 @@ annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
 n_splits = 8
 fold_idx = 0
-lr = 1e-4
+lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("score", "max")
-max_size = 512
-batch_size = 12
+max_size = 758
+batch_size = 4
 num_workers = 8
 
 # lr_scheduler
@@ -37,7 +37,7 @@ heatmap_weight = 1.0
 box_weight = 1.0
 
 # ToBoxes
-confidence_threshold = 0.3
+confidence_threshold = 0.1
 
 # box merge
 iou_threshold = 0.6
@@ -47,4 +47,4 @@ mkmaps = MkGaussianMaps(sigma=0.5, mode="constant")
 
 to_boxes = ToBoxes(threshold=confidence_threshold, kernel_size=3)
 
-out_dir = f"/kaggle/input/models/ctdt-effdet_id-{effdet_id}-depth-{depth}-channels-{channels}-out_idx-{out_idx}-max_size-{max_size}/{fold_idx}"
+out_dir = f"/kaggle/input/models/2020-08-31-0/{fold_idx}"

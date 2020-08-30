@@ -25,20 +25,19 @@ from object_detection.models.effidet import (
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
 from experiments.effdet import config
+from app.transforms import get_train_transforms, get_valid_transforms
 
 
 def train(epochs: int) -> None:
     train_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        max_size=config.max_size,
-        mode="train",
+        transforms=get_train_transforms(),
     )
     test_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        max_size=config.max_size,
-        mode="test",
+        transforms=get_valid_transforms(),
     )
     fold_keys = [x[2].shape[0] // 30 for x in test_dataset.rows]
     train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[
@@ -94,5 +93,6 @@ def train(epochs: int) -> None:
         to_boxes=to_boxes,
     )(epochs)
 
-if __name__ == '__main__':
-   train(1000)
+
+if __name__ == "__main__":
+    train(1000)

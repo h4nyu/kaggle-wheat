@@ -59,79 +59,29 @@ def get_img(image_id: ImageId, image_dir: Path) -> t.Any:
     return imread(image_path)
 
 
+DEFAULT_TRANSFORM = A.Compose(
+    [A.Resize(height=1024, width=1024, p=1.0), ToTensorV2(p=1.0),],
+    p=1.0,
+    bbox_params=A.BboxParams(
+        format="coco", min_area=0, min_visibility=0, label_fields=["labels"]
+    ),
+)
+
+
 class WheatDataset(Dataset):
     def __init__(
         self,
         annot_file: str,
         image_dir: str,
-        max_size: int = 512,
-        mode: Literal["train", "test"] = "train",
+        transforms: t.Callable = DEFAULT_TRANSFORM,
     ) -> None:
         super().__init__()
         self.annot_file = Path(annot_file)
         self.rows = load_lables(annot_file)
-        self.mode = mode
         self.image_dir = Path(image_dir)
         self.cache: t.Dict[str, t.Any] = dict()
         self.image_dir = Path(image_dir)
-
-        bbox_params = {
-            "format": "coco",
-            "label_fields": ["labels"],
-            "min_area": 0,
-            "min_visibility": 0,
-        }
-        self.pre_transforms = A.Compose([], bbox_params=bbox_params,)
-        self.train_transforms = A.Compose(
-            [
-                #  A.RandomSizedCrop(
-                #      min_max_height=(800, 800), height=1024, width=1024, p=0.5
-                #  ),
-                A.RandomResizedCrop(
-                    p=1.0, height=max_size, width=max_size, scale=(0.9, 1.1)
-                ),
-                A.ShiftScaleRotate(
-                    p=0.5, border_mode=cv2.BORDER_CONSTANT, rotate_limit=5
-                ),
-                A.HorizontalFlip(p=0.5),
-                A.VerticalFlip(p=0.5),
-                A.RandomRotate90(p=0.5),
-                A.OneOf(
-                    [
-                        A.HueSaturationValue(
-                            hue_shift_limit=0.2,
-                            sat_shift_limit=0.2,
-                            val_shift_limit=0.2,
-                            p=0.9,
-                        ),
-                        A.RGBShift(p=0.9),
-                        A.RandomBrightnessContrast(
-                            brightness_limit=0.2, contrast_limit=0.2, p=0.9
-                        ),
-                    ],
-                    p=0.9,
-                ),
-                A.RandomGamma(p=0.5),
-                A.CLAHE(p=0.5),
-                A.ToGray(p=0.01),
-                A.OneOf(
-                    [A.Blur(), A.MotionBlur(), A.MedianBlur(), A.IAASharpen(),], p=0.5,
-                ),
-                A.IAASharpen(p=0.5),
-                A.IAAEmboss(p=0.5),
-                A.GaussNoise(p=0.5),
-                A.IAAAdditiveGaussianNoise(p=0.5),
-                A.Cutout(
-                    num_holes=16, max_h_size=64, max_w_size=64, fill_value=0, p=0.5
-                ),
-            ],
-            bbox_params=bbox_params,
-        )
-
-        self.post_transforms = A.Compose(
-            [A.LongestMaxSize(max_size=max_size), ToTensorV2(),],
-            bbox_params=bbox_params,
-        )
+        self.transforms = transforms
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -140,13 +90,8 @@ class WheatDataset(Dataset):
         image_id, _, boxes = self.rows[index]
         image = get_img(image_id=image_id, image_dir=self.image_dir)
         labels = np.zeros(boxes.shape[0])
-        res = self.pre_transforms(image=image, bboxes=boxes, labels=labels)
-        if self.mode == "train":
-            res = self.train_transforms(**res)
-        res = self.post_transforms(**res)
-
+        res = self.transforms(image=image, bboxes=boxes, labels=labels)
         image = Image(res["image"].float() / 255.0)
-
         _, h, w = image.shape
         boxes = CoCoBoxes(torch.tensor(res["bboxes"]).float())
         yolo_boxes = coco_to_yolo(boxes, (w, h))

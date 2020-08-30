@@ -27,6 +27,7 @@ from object_detection.models.losses import DIoU
 from object_detection import boxmap_to_boxes, yolo_to_pascal, BoxMap, YoloBoxes
 from app.preprocess import kfold
 from experiments.centernet import config
+from app.transforms import get_train_transforms, get_valid_transforms
 
 
 class Trainer(_Trainer):
@@ -45,14 +46,12 @@ def train(epochs: int) -> None:
     train_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        max_size=config.max_size,
-        mode="train",
+        transforms=get_train_transforms(),
     )
     test_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        max_size=config.max_size,
-        mode="test",
+        transforms=get_valid_transforms(),
     )
     fold_keys = [x[2].shape[0] // 30 for x in test_dataset.rows]
     train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[
