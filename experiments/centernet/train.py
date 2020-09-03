@@ -46,12 +46,12 @@ def train(epochs: int) -> None:
     train_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        transforms=get_train_transforms(),
+        transforms=get_train_transforms(size=config.max_size),
     )
     test_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        transforms=get_valid_transforms(),
+        transforms=get_valid_transforms(size=config.max_size),
     )
     fold_keys = [x[2].shape[0] // 30 for x in test_dataset.rows]
     train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[

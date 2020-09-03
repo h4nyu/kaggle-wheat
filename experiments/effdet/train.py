@@ -32,12 +32,12 @@ def train(epochs: int) -> None:
     train_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        transforms=get_train_transforms(),
+        transforms=get_train_transforms(config.max_size),
     )
     test_dataset = WheatDataset(
         image_dir=config.train_image_dir,
         annot_file=config.annot_file,
-        transforms=get_valid_transforms(),
+        transforms=get_valid_transforms(config.max_size),
     )
     fold_keys = [x[2].shape[0] // 30 for x in test_dataset.rows]
     train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[
@@ -54,7 +54,7 @@ def train(epochs: int) -> None:
     )
     test_loader = DataLoader(
         Subset(test_dataset, test_idx),
-        batch_size=config.batch_size,
+        batch_size=config.batch_size * 2,
         drop_last=False,
         shuffle=False,
         collate_fn=collate_fn,
@@ -63,7 +63,11 @@ def train(epochs: int) -> None:
     backbone = EfficientNetBackbone(
         config.effdet_id, out_channels=config.channels, pretrained=config.pretrained
     )
-    anchors = Anchors(ratios=config.anchor_ratios, scales=config.anchor_scales,)
+    anchors = Anchors(
+            size=config.anchor_size,
+            ratios=config.anchor_ratios,
+            scales=config.anchor_scales,
+    )
     model = EfficientDet(
         num_classes=1,
         channels=config.channels,
@@ -79,7 +83,9 @@ def train(epochs: int) -> None:
     criterion = Criterion()
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr,)
-    to_boxes = ToBoxes(confidence_threshold=config.confidence_threshold)
+    to_boxes = ToBoxes(
+        confidence_threshold=config.confidence_threshold
+    )
     Trainer(
         model=model,
         train_loader=train_loader,
