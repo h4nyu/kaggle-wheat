@@ -12,6 +12,7 @@ services:
     volumes:
       - .:/srv
       - ./store:/kaggle
+      - ./store:/store
     runtime: nvidia
     environment:
       - KAGGLE_USERNAME

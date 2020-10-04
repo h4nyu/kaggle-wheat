@@ -22,7 +22,6 @@ setup(
         "efficientnet_pytorch",
         "typing_extensions",
         "pillow-simd",
-        "object_detection @ git+https://github.com/h4nyu/object-detection",
     ],
     extras_require={"dev": ["mypy", "pytest", "black",]},
     entry_points={"console_scripts": ["app=app.cmd:main"],},

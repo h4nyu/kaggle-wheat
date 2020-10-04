@@ -11,13 +11,13 @@ test_image_dir = "/kaggle/input/global-wheat-detection/test"
 train_image_dir = "/kaggle/input/global-wheat-detection/train"
 annot_file = "/kaggle/input/global-wheat-detection/train.csv"
 
-n_splits = 8
+n_splits = 5
 fold_idx = 0
 lr = 1e-4
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("score", "max")
-max_size = 1024
-batch_size = 4
+max_size = 512
+batch_size = 8
 num_workers = 8
 
 # lr_scheduler
@@ -25,7 +25,7 @@ T_max = 20
 eta_min = 1e-6
 
 # model
-effdet_id: Phi = 3
+effdet_id: Phi = 6
 out_idx: PyramidIdx = 4
 depth = 1
 channels = 64
@@ -47,4 +47,4 @@ mkmaps = MkGaussianMaps(sigma=0.5, mode="constant")
 
 to_boxes = ToBoxes(threshold=confidence_threshold, kernel_size=3)
 
-out_dir = f"/kaggle/input/models/2020-08-31-0/{fold_idx}"
+out_dir = f"/kaggle/input/models/2020-09-26-0/"

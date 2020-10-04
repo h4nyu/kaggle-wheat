@@ -19,8 +19,6 @@ from object_detection.models.effidet import (
     Visualize,
     ToBoxes,
     Anchors,
-    BoxLoss,
-    LabelLoss,
 )
 from object_detection.model_loader import ModelLoader, BestWatcher
 from app.preprocess import kfold
@@ -80,7 +78,10 @@ def train(epochs: int) -> None:
         key=config.metric[0],
         best_watcher=BestWatcher(mode=config.metric[1]),
     )
-    criterion = Criterion()
+    criterion = Criterion(
+        cls_weight=config.cls_weight,
+        box_weight=config.box_weight,
+    )
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr,)
     to_boxes = ToBoxes(
