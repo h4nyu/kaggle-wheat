@@ -14,25 +14,25 @@ lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 metric: Tuple[str, Literal["max", "min"]] = ("score", "max")
 max_size = 512
-batch_size = 12
+batch_size = 8
 num_workers = 8
 
 ## model
-effdet_id: Phi = 2
-out_ids: List[PyramidIdx] = [4, 5, 6, 7]
+effdet_id: Phi = 4
+out_ids: List[PyramidIdx] = [4, 5, 6]
 channels = 128
 pretrained = True
 
 ## criterion
 cls_weight = 1.0
-box_weight = 3.0
+box_weight = 1.0
 
 ## anchor
 anchor_ratios = [1.0]
 anchor_scales = [1.0]
-anchor_size = 2.0
+anchor_size = 4.0
 
 ## ToBoxes
 confidence_threshold = 0.3
 
-out_dir = f"/kaggle/input/models/2020-09-25"
+out_dir = f"/kaggle/input/models/2020-10-03"
