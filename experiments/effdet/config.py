@@ -25,7 +25,7 @@ pretrained = True
 
 ## criterion
 cls_weight = 1.0
-box_weight = 1.0
+box_weight = 10.0
 
 ## anchor
 anchor_ratios = [1.0]
