@@ -24,8 +24,9 @@ channels = 128
 pretrained = True
 
 ## criterion
+topk = 15
 cls_weight = 1.0
-box_weight = 1.0
+box_weight = 20.0
 
 ## anchor
 anchor_ratios = [1.0]

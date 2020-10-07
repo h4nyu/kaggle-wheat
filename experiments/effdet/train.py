@@ -37,7 +37,7 @@ def train(epochs: int) -> None:
         annot_file=config.annot_file,
         transforms=get_valid_transforms(config.max_size),
     )
-    fold_keys = [x[2].shape[0] // 30 for x in test_dataset.rows]
+    fold_keys = [x[2].shape[0] // 10 for x in test_dataset.rows]
     train_idx, test_idx = list(kfold(n_splits=config.n_splits, keys=fold_keys))[
         config.fold_idx
     ]
@@ -79,11 +79,12 @@ def train(epochs: int) -> None:
         best_watcher=BestWatcher(mode=config.metric[1]),
     )
     criterion = Criterion(
+        topk=config.topk,
         cls_weight=config.cls_weight,
         box_weight=config.box_weight,
     )
     visualize = Visualize(config.out_dir, "test", limit=5, show_probs=True)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr,)
+    optimizer = torch.optim.SGD(model.parameters(), lr=config.lr,)
     to_boxes = ToBoxes(
         confidence_threshold=config.confidence_threshold
     )
